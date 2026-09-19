@@ -1,0 +1,173 @@
+{
+  "id": "paragon",
+  "category": "Melee",
+  "tags": [
+    "AD",
+    "Melee",
+    "Tank",
+    "CC"
+  ],
+  "sprite": "asset/my_mod/champions/paragon",
+  "anim_prefix": "",
+  "stat": {
+    "attack": 90,
+    "magic_power": 0,
+    "hp": 1300,
+    "defence": 35,
+    "magic_resistance": 30,
+    "move_speed": 1000,
+    "hp_regen": 2,
+    "stack": 0,
+    "crit_chance": 0
+  },
+  "skill_icons": [
+    "asset/my_mod/icons/paragon_skill",
+    "asset/my_mod/icons/paragon_skill2",
+    "asset/my_mod/icons/paragon_ult"
+  ],
+  "growth": {
+    "attack": 18,
+    "magic_power": 0,
+    "hp": 130,
+    "defence": 6,
+    "magic_resistance": 5,
+    "move_speed": 5,
+    "hp_regen": 1,
+    "stack": 0,
+    "crit_chance": 0
+  },
+  "attack": {
+    "action_name": "attack",
+    "description": "#asset/base/text/champion?description.paragon.attack",
+    "duration": 20,
+    "cooltime": 50,
+    "start_timing": 6,
+    "cancelable": false,
+    "range": 15000,
+    "growth_range": 0,
+    "casting_type": "Targeting",
+    "casting_target": "Enemy",
+    "attack_type": "BaseAttack",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Attack",
+          "amount": 0,
+          "attack_ratio": 100,
+          "ap_ratio": 0,
+          "hp_ratio": 0,
+          "target_hp_ratio": 0
+        }
+      ]
+    }
+  },
+  "skill": {
+    "action_name": "skill",
+    "description": "#asset/base/text/champion?description.paragon.skill",
+    "duration": 24,
+    "cooltime": 160,
+    "start_timing": 5,
+    "cancelable": false,
+    "range": 15000,
+    "growth_range": 0,
+    "casting_type": "Targeting",
+    "casting_target": "EnemyChampion",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Native",
+          "effect_ref": "paragon_wrathgrasp"
+        }
+      ]
+    }
+  },
+  "skill2": {
+    "action_name": "skill2",
+    "description": "#asset/base/text/champion?description.paragon.skill2",
+    "duration": 30,
+    "cooltime": 200,
+    "start_timing": 6,
+    "cancelable": false,
+    "range": 15000,
+    "growth_range": 0,
+    "casting_type": "Targeting",
+    "casting_target": "EnemyChampion",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Native",
+          "effect_ref": "paragon_shatter_chain"
+        }
+      ]
+    }
+  },
+  "ult": {
+    "action_name": "ult",
+    "description": "#asset/base/text/champion?description.paragon.ult",
+    "duration": 40,
+    "cooltime": 1200,
+    "start_timing": 8,
+    "cancelable": false,
+    "range": 0,
+    "growth_range": 0,
+    "casting_type": "None",
+    "casting_target": "EnemyChampion",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Native",
+          "effect_ref": "paragon_godless"
+        }
+      ]
+    }
+  },
+  "view_effects": [
+    {
+      "type": "Animation",
+      "name": "paragon_grab_impact",
+      "anim": "asset/my_mod/fx/paragon_grab_impact",
+      "is_follow": false,
+      "tag": "paragon_grab_impact"
+    },
+    {
+      "type": "Animation",
+      "name": "paragon_godless_aura",
+      "anim": "asset/my_mod/fx/paragon_godless_aura",
+      "is_follow": true,
+      "tag": "paragon_godless_aura"
+    },
+    {
+      "type": "Animation",
+      "name": "paragon_dot_pulse",
+      "anim": "asset/my_mod/fx/paragon_dot_pulse",
+      "is_follow": false,
+      "tag": "paragon_dot_pulse"
+    },
+    {
+      "type": "Animation",
+      "name": "paragon_shatter_chain",
+      "anim": "asset/my_mod/fx/paragon_shatter_chain",
+      "is_follow": false,
+      "tag": "paragon_shatter_chain"
+    }
+  ],
+  "view_projectiles": [],
+  "passive": {
+    "passive_ref": "circus_blade",
+    "params": {
+      "charge_count": 4
+    }
+  },
+  "stack_skill_index": 0
+}

@@ -1,0 +1,14 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Binary assets - never let git try to diff or mangle these
+*.png  binary
+*.wav  binary
+*.fanim text
+*.data_champion text
+*.i18n text
+*.toml text
+*.mod_info text
+*.override_info text
+*.champion_view text
+*.sound_info text

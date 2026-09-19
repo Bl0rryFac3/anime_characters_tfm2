@@ -1,0 +1,114 @@
+{
+  "asset/base/text/champion": {
+    "remapping": "asset/my_mod/text/champion",
+    "type": "merge"
+  },
+  "asset/base/style/champion_view": {
+    "remapping": "asset/my_mod/style/champion_view",
+    "type": "merge"
+  },
+  "asset/base/aseprite_resources/champions/my_1st_mod_champion#sheet": {
+    "remapping": "asset/my_mod/champions/my_1st_mod_champion#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/champions/my_1st_mod_champion#anim": {
+    "remapping": "asset/my_mod/champions/my_1st_mod_champion#anim",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/minato_attack": {
+    "remapping": "asset/my_mod/sound/sfx/minato_attack",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/minato_attack_clip": {
+    "remapping": "asset/my_mod/sound/sfx/minato_attack_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/minato_skill": {
+    "remapping": "asset/my_mod/sound/sfx/minato_skill",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/minato_skill_clip": {
+    "remapping": "asset/my_mod/sound/sfx/minato_skill_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/minato_skill2": {
+    "remapping": "asset/my_mod/sound/sfx/minato_skill2",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/minato_skill2_clip": {
+    "remapping": "asset/my_mod/sound/sfx/minato_skill2_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/minato_ult": {
+    "remapping": "asset/my_mod/sound/sfx/minato_ult",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/minato_ult_clip": {
+    "remapping": "asset/my_mod/sound/sfx/minato_ult_clip",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/champions/naruto#sheet": {
+    "remapping": "asset/my_mod/champions/naruto#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/champions/naruto#anim": {
+    "remapping": "asset/my_mod/champions/naruto#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/champions/minato#sheet": {
+    "remapping": "asset/my_mod/champions/minato#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/champions/minato#anim": {
+    "remapping": "asset/my_mod/champions/minato#anim",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/naruto_attack": {
+    "remapping": "asset/my_mod/sound/sfx/naruto_attack",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/naruto_attack_clip": {
+    "remapping": "asset/my_mod/sound/sfx/naruto_attack_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/naruto_clone_spawn": {
+    "remapping": "asset/my_mod/sound/sfx/naruto_clone_spawn",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/naruto_clone_spawn_clip": {
+    "remapping": "asset/my_mod/sound/sfx/naruto_clone_spawn_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/naruto_rasengan_sfx": {
+    "remapping": "asset/my_mod/sound/sfx/naruto_rasengan_sfx",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/naruto_rasengan_sfx_clip": {
+    "remapping": "asset/my_mod/sound/sfx/naruto_rasengan_sfx_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/naruto_barrage_slam": {
+    "remapping": "asset/my_mod/sound/sfx/naruto_barrage_slam",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/naruto_barrage_slam_clip": {
+    "remapping": "asset/my_mod/sound/sfx/naruto_barrage_slam_clip",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/champions/saitama#sheet": {
+    "remapping": "asset/my_mod/champions/saitama#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/champions/saitama#anim": {
+    "remapping": "asset/my_mod/champions/saitama#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/champions/paragon#sheet": {
+    "remapping": "asset/my_mod/champions/paragon#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/champions/paragon#anim": {
+    "remapping": "asset/my_mod/champions/paragon#anim",
+    "type": "override"
+  }
+}

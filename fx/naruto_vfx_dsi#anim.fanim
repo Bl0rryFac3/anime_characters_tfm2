@@ -1,0 +1,29 @@
+{
+  "anims": {
+    "clone_ambush": {
+      "frames": [
+        { "duration": 0.1, "data": { "x": 3, "y": 629, "w": 47, "h": 47 } },
+        { "duration": 0.1, "data": { "x": 79, "y": 625, "w": 47, "h": 47 } },
+        { "duration": 0.1, "data": { "x": 163, "y": 629, "w": 47, "h": 47 } },
+        { "duration": 0.1, "data": { "x": 222, "y": 629, "w": 47, "h": 47 } },
+        { "duration": 0.1, "data": { "x": 282, "y": 629, "w": 47, "h": 47 } }
+      ]
+    },
+    "rasengan_impact": {
+      "frames": [
+        { "duration": 0.1, "data": { "x": 483, "y": 43, "w": 20, "h": 20 } },
+        { "duration": 0.1, "data": { "x": 502, "y": 47, "w": 20, "h": 20 } },
+        { "duration": 0.1, "data": { "x": 522, "y": 47, "w": 20, "h": 20 } },
+        { "duration": 0.1, "data": { "x": 543, "y": 47, "w": 20, "h": 20 } }
+      ]
+    },
+    "barrage_ground_slam": {
+      "frames": [
+        { "duration": 0.1, "data": { "x": 3, "y": 725, "w": 42, "h": 46 } },
+        { "duration": 0.1, "data": { "x": 72, "y": 731, "w": 42, "h": 46 } },
+        { "duration": 0.1, "data": { "x": 159, "y": 735, "w": 42, "h": 46 } },
+        { "duration": 0.1, "data": { "x": 226, "y": 736, "w": 42, "h": 46 } }
+      ]
+    }
+  }
+}
