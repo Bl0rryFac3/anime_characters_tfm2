@@ -1,7 +1,7 @@
 {
   "en": {
     "description": {
-      "my_1st_mod_champion": {
+      "minato": {
         "name": "Minato",
         "attack": "Throws a kunai to deal <#ff9028ff>100% of attack damage<> as physical damage.",
         "skill": "Flying Raijin: Dashes to the target, dealing <#ef5350ff>40<> + <#ff9028ff>70% of attack damage<> as physical damage and marking them to slow movement speed. If marked, deals <#ef5350ff>90<> + <#ff9028ff>130% of attack damage<> instead and grants Minato 35% attack speed.",

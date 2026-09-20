@@ -7,12 +7,12 @@
     "remapping": "asset/my_mod/style/champion_view",
     "type": "merge"
   },
-  "asset/base/aseprite_resources/champions/my_1st_mod_champion#sheet": {
-    "remapping": "asset/my_mod/champions/my_1st_mod_champion#sheet",
+  "asset/base/aseprite_resources/champions/minato#sheet": {
+    "remapping": "asset/my_mod/champions/minato#sheet",
     "type": "override"
   },
-  "asset/base/aseprite_resources/champions/my_1st_mod_champion#anim": {
-    "remapping": "asset/my_mod/champions/my_1st_mod_champion#anim",
+  "asset/base/aseprite_resources/champions/minato#anim": {
+    "remapping": "asset/my_mod/champions/minato#anim",
     "type": "override"
   },
   "asset/base/sound/sfx/minato_attack": {
@@ -53,14 +53,6 @@
   },
   "asset/base/aseprite_resources/champions/naruto#anim": {
     "remapping": "asset/my_mod/champions/naruto#anim",
-    "type": "override"
-  },
-  "asset/base/aseprite_resources/champions/minato#sheet": {
-    "remapping": "asset/my_mod/champions/minato#sheet",
-    "type": "override"
-  },
-  "asset/base/aseprite_resources/champions/minato#anim": {
-    "remapping": "asset/my_mod/champions/minato#anim",
     "type": "override"
   },
   "asset/base/sound/sfx/naruto_attack": {
@@ -109,6 +101,70 @@
   },
   "asset/base/aseprite_resources/champions/paragon#anim": {
     "remapping": "asset/my_mod/champions/paragon#anim",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/paragon_attack_sfx": {
+    "remapping": "asset/my_mod/sound/sfx/paragon_attack_sfx",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/paragon_wrathgrasp_sfx": {
+    "remapping": "asset/my_mod/sound/sfx/paragon_wrathgrasp_sfx",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/paragon_shatter_chain_sfx": {
+    "remapping": "asset/my_mod/sound/sfx/paragon_shatter_chain_sfx",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/paragon_godless_sfx": {
+    "remapping": "asset/my_mod/sound/sfx/paragon_godless_sfx",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/paragon_attack_sfx_clip": {
+    "remapping": "asset/my_mod/sound/sfx/paragon_attack_sfx_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/paragon_wrathgrasp_sfx_clip": {
+    "remapping": "asset/my_mod/sound/sfx/paragon_wrathgrasp_sfx_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/paragon_shatter_chain_sfx_clip": {
+    "remapping": "asset/my_mod/sound/sfx/paragon_shatter_chain_sfx_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/paragon_godless_sfx_clip": {
+    "remapping": "asset/my_mod/sound/sfx/paragon_godless_sfx_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/saitama_attack_sfx": {
+    "remapping": "asset/my_mod/sound/sfx/saitama_attack_sfx",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/saitama_attack_sfx_clip": {
+    "remapping": "asset/my_mod/sound/sfx/saitama_attack_sfx_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/saitama_skill_sfx": {
+    "remapping": "asset/my_mod/sound/sfx/saitama_skill_sfx",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/saitama_skill_sfx_clip": {
+    "remapping": "asset/my_mod/sound/sfx/saitama_skill_sfx_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/saitama_skill2_sfx": {
+    "remapping": "asset/my_mod/sound/sfx/saitama_skill2_sfx",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/saitama_skill2_sfx_clip": {
+    "remapping": "asset/my_mod/sound/sfx/saitama_skill2_sfx_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/saitama_serious_sfx": {
+    "remapping": "asset/my_mod/sound/sfx/saitama_serious_sfx",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/saitama_serious_sfx_clip": {
+    "remapping": "asset/my_mod/sound/sfx/saitama_serious_sfx_clip",
     "type": "override"
   }
 }

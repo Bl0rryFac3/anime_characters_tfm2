@@ -2,7 +2,7 @@
   "plays": [
     {
       "delay": 0.0,
-      "clip": "paragon_shatter_chain_sfx",
+      "clip": "paragon_shatter_chain_sfx_clip",
       "volume": 1.0
     }
   ]

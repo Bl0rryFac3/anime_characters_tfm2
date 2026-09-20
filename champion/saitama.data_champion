@@ -62,7 +62,7 @@
         },
         {
           "type": "Sfx",
-          "name": "saitama_punch_sfx"
+          "name": "saitama_attack_sfx"
         }
       ]
     },
@@ -89,7 +89,27 @@
         },
         {
           "type": "Sfx",
-          "name": "saitama_punch_sfx"
+          "name": "saitama_skill_sfx"
+        },
+        {
+          "type": "RangeEffect",
+          "shape": {
+            "Circle": {
+              "radius": 35000
+            }
+          },
+          "target": "Enemy",
+          "apply_type": "AroundCaster",
+          "effects": [
+            {
+              "type": "Attack",
+              "damage": 0,
+              "attack_ratio": 50,
+              "ap_ratio": 0,
+              "hp_ratio": 0,
+              "target_hp_ratio": 0
+            }
+          ]
         }
       ]
     },
@@ -116,7 +136,27 @@
         },
         {
           "type": "Sfx",
-          "name": "saitama_punch_sfx"
+          "name": "saitama_skill2_sfx"
+        },
+        {
+          "type": "RangeEffect",
+          "shape": {
+            "Circle": {
+              "radius": 35000
+            }
+          },
+          "target": "Enemy",
+          "apply_type": "AroundCaster",
+          "effects": [
+            {
+              "type": "Attack",
+              "damage": 0,
+              "attack_ratio": 70,
+              "ap_ratio": 0,
+              "hp_ratio": 0,
+              "target_hp_ratio": 0
+            }
+          ]
         }
       ]
     },

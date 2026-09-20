@@ -2,7 +2,7 @@
   "plays": [
     {
       "delay": 0.0,
-      "clip": "paragon_wrathgrasp_sfx",
+      "clip": "paragon_wrathgrasp_sfx_clip",
       "volume": 1.0
     }
   ]

@@ -2,7 +2,7 @@
   "plays": [
     {
       "delay": 0.0,
-      "clip": "paragon_godless_sfx_clip",
+      "clip": "saitama_attack_sfx_clip",
       "volume": 1.0
     }
   ]

@@ -225,7 +225,7 @@ impl StableEffectType for SaitamaSeriousMode {
             // Ult could ever be recast. Slashing the cooldown while this
             // buff is up is what actually makes a same-window recast
             // possible at all.
-            let mut buff = BuffV1::timed(SERIOUS_BUFF, 450); // real balance value — widened from original 300, well short of the 1800 testing value
+            let mut buff = BuffV1::timed(SERIOUS_BUFF, 1000); // real balance value — widened from original 300, well short of the 1800 testing value
             buff.attack_mult = 150; // assumed +150%, verify in-game
             // NOTE: -80 was tried first and appears to have over-corrected —
             // Ult's cooldown collapsed low enough that the AI chain-cast it
@@ -257,6 +257,7 @@ pub fn register(reg: &mut StableMod) {
     reg.add_native_effect("paragon_wrathgrasp", crate::paragon::ParagonWrathgraspEffect);
     reg.add_native_effect("paragon_shatter_chain", crate::paragon::ParagonShatterChainEffect);
     reg.add_native_effect("paragon_godless", crate::paragon::ParagonGodlessEffect);
+    reg.add_native_passive("paragon_passive", crate::paragon_passive::ParagonPassive::default());
 
     
 }

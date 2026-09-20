@@ -100,7 +100,7 @@ A **delayed area-of-effect** strike (circle around the caster) that also applies
 1. Subscribe/enable the mod in the **Teamfight Manager 2** in-game mod manager, **or**
 2. Copy the contents of this repository into:
    ```
-   C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\mods\<your_mod_folder>\
+   C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\mods\my_mod\
    ```
    The folder name must match the crate name for the DLL to load.
 
@@ -112,7 +112,7 @@ The Rust side is a **Stable-ABI** mod — it builds with any Rust toolchain and 
 cargo build --release
 ```
 
-The resulting `target/release/<crate_name>.dll` gets copied next to the data files. The SDK crate (`mod-api-stable`) is plain source; the uploader installs it at `../mod-api-stable` if it is missing.
+The resulting `target/release/my_mod.dll` gets copied next to the data files. The SDK crate (`mod-api-stable`) is plain source; the uploader installs it at `../mod-api-stable` if it is missing.
 
 # Important
 
