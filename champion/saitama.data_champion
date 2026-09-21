@@ -1,0 +1,252 @@
+{
+  "id": "saitama",
+  "category": "Melee",
+  "tags": [
+    "AD",
+    "Melee"
+  ],
+  "sprite": "asset/my_mod/champions/saitama",
+  "anim_prefix": "",
+  "stat": {
+    "attack": 100,
+    "crit_chance": 0,
+    "defence": 25,
+    "hp": 1000,
+    "hp_regen": 0,
+    "magic_power": 0,
+    "magic_resistance": 25,
+    "move_speed": 1100,
+    "stack": 0
+  },
+  "skill_icons": [
+    "asset/my_mod/icons/saitama_skill",
+    "asset/my_mod/icons/saitama_skill2",
+    "asset/my_mod/icons/saitama_ult"
+  ],
+  "growth": {
+    "attack": 20,
+    "crit_chance": 0,
+    "defence": 5,
+    "hp": 100,
+    "hp_regen": 0,
+    "magic_power": 0,
+    "magic_resistance": 5,
+    "move_speed": 10,
+    "stack": 0
+  },
+  "attack": {
+    "action_name": "attack",
+    "attack_type": "BaseAttack",
+    "can_use_with_move": false,
+    "cancelable": true,
+    "casting_target": "Enemy",
+    "casting_type": "Targeting",
+    "cooltime": 45,
+    "description": "#asset/base/text/champion?description.saitama.attack",
+    "duration": 16,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Attack",
+          "damage": 0,
+          "attack_ratio": 100,
+          "ap_ratio": 0,
+          "hp_ratio": 0,
+          "target_hp_ratio": 0,
+          "attack_effect_type": "Target"
+        },
+        {
+          "type": "Native",
+          "effect_ref": "saitama_combo_tick"
+        },
+        {
+          "type": "Sfx",
+          "name": "saitama_attack_sfx"
+        }
+      ]
+    },
+    "growth_range": 0,
+    "range": 15000,
+    "start_timing": 6
+  },
+  "skill": {
+    "action_name": "skill",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "cancelable": false,
+    "casting_target": "EnemyWithoutTower",
+    "casting_type": "Targeting",
+    "cooltime": 140,
+    "description": "#asset/base/text/champion?description.saitama.skill",
+    "duration": 90,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Native",
+          "effect_ref": "saitama_skill_punch"
+        },
+        {
+          "type": "Sfx",
+          "name": "saitama_skill_sfx"
+        },
+        {
+          "type": "RangeEffect",
+          "shape": {
+            "Circle": {
+              "radius": 35000
+            }
+          },
+          "target": "EnemyWithoutTower",
+          "apply_type": "AroundCaster",
+          "effects": [
+            {
+              "type": "Attack",
+              "damage": 0,
+              "attack_ratio": 50,
+              "ap_ratio": 0,
+              "hp_ratio": 0,
+              "target_hp_ratio": 0
+            }
+          ]
+        }
+      ]
+    },
+    "growth_range": 0,
+    "range": 15000,
+    "start_timing": 5
+  },
+  "skill2": {
+    "action_name": "skill2",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "cancelable": false,
+    "casting_target": "EnemyWithoutTower",
+    "casting_type": "Targeting",
+    "cooltime": 160,
+    "description": "#asset/base/text/champion?description.saitama.skill2",
+    "duration": 78,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Native",
+          "effect_ref": "saitama_skill_punch2"
+        },
+        {
+          "type": "Sfx",
+          "name": "saitama_skill2_sfx"
+        },
+        {
+          "type": "RangeEffect",
+          "shape": {
+            "Circle": {
+              "radius": 35000
+            }
+          },
+          "target": "EnemyWithoutTower",
+          "apply_type": "AroundCaster",
+          "effects": [
+            {
+              "type": "Attack",
+              "damage": 0,
+              "attack_ratio": 70,
+              "ap_ratio": 0,
+              "hp_ratio": 0,
+              "target_hp_ratio": 0
+            }
+          ]
+        }
+      ]
+    },
+    "growth_range": 0,
+    "range": 15000,
+    "start_timing": 5
+  },
+  "ult": {
+    "action_name": "ult",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "cancelable": false,
+    "casting_target": "EnemyChampion",
+    "casting_type": "None",
+    "cooltime": 900,
+    "description": "#asset/base/text/champion?description.saitama.ult",
+    "duration": 60,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Native",
+          "effect_ref": "saitama_serious_mode"
+        },
+        {
+          "type": "Sfx",
+          "name": "saitama_serious_sfx"
+        },
+        {
+          "type": "CasterViewEffect",
+          "name": "saitama_serious_transform"
+        }
+      ]
+    },
+    "growth_range": 0,
+    "range": 55000,
+    "start_timing": 8
+  },
+  "view_effects": [
+    {
+      "type": "Animation",
+      "name": "saitama_punch_impact",
+      "anim": "asset/my_mod/fx/saitama_vfx",
+      "is_follow": false,
+      "tag": "saitama_punch_impact"
+    },
+    {
+      "type": "Animation",
+      "name": "saitama_serious_transform",
+      "anim": "asset/my_mod/fx/saitama_vfx",
+      "is_follow": false,
+      "tag": "saitama_serious_transform"
+    },
+    {
+      "type": "Animation",
+      "name": "saitama_serious_punch_impact",
+      "anim": "asset/my_mod/fx/saitama_vfx",
+      "is_follow": false,
+      "tag": "saitama_serious_punch_impact"
+    },
+    {
+      "type": "Animation",
+      "name": "saitama_death_punch_impact",
+      "anim": "asset/my_mod/fx/saitama_vfx",
+      "is_follow": false,
+      "tag": "saitama_death_punch_impact"
+    },
+    {
+      "type": "Animation",
+      "name": "saitama_table_flip",
+      "anim": "asset/my_mod/fx/saitama_vfx",
+      "is_follow": false,
+      "tag": "saitama_table_flip"
+    }
+  ],
+  "view_projectiles": [
+    {
+      "type": "Animated",
+      "name": "saitama_table_flip",
+      "anim": "asset/my_mod/fx/saitama_vfx",
+      "repeat": true,
+      "tag": "saitama_table_flip"
+    }
+  ],
+  "passive": {
+    "passive_ref": "berserker",
+    "params": {
+      "cooltime_reduction": 2,
+      "max_cooltime_reduction": 30
+    }
+  },
+  "stack_skill_index": 0
+}

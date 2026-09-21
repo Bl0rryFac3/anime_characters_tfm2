@@ -1,0 +1,351 @@
+{
+  "id": "minato",
+  "category": "Assassin",
+  "tags": [
+    "AD",
+    "Range"
+  ],
+  "sprite": "asset/my_mod/champions/minato",
+  "anim_prefix": "",
+  "stat": {
+    "attack": 75,
+    "crit_chance": 16,
+    "defence": 20,
+    "hp": 1050,
+    "hp_regen": 0,
+    "magic_power": 0,
+    "magic_resistance": 20,
+    "move_speed": 1250,
+    "stack": 0
+  },
+  "skill_icons": [
+    "asset/my_mod/icons/minato_skill",
+    "asset/my_mod/icons/minato_skill2",
+    "asset/my_mod/icons/minato_ult"
+  ],
+  "growth": {
+    "attack": 18,
+    "crit_chance": 0,
+    "defence": 4,
+    "hp": 95,
+    "hp_regen": 0,
+    "magic_power": 0,
+    "magic_resistance": 5,
+    "move_speed": 10,
+    "stack": 0
+  },
+  "attack": {
+    "action_name": "attack",
+    "attack_type": "BaseAttack",
+    "can_use_with_move": false,
+    "cancelable": false,
+    "casting_target": "Enemy",
+    "casting_type": "Targeting",
+    "cooltime": 60,
+    "description": "#asset/base/text/champion?description.minato.attack",
+    "duration": 18,
+    "growth_range": 0,
+    "range": 54000,
+    "start_timing": 10,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "TargetProjectile",
+          "name": "minato_attack",
+          "speed": 4600,
+          "applied_effects": [
+            {
+              "effect": {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 100,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              },
+              "casting_type": "Targeting"
+            }
+          ],
+          "y_offset": 0,
+          "penetrate": false,
+          "end_effects": [],
+          "applied_target": "Enemy"
+        },
+        {
+          "type": "Sfx",
+          "name": "minato_attack"
+        }
+      ]
+    }
+  },
+  "skill": {
+    "action_name": "skill",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "cancelable": false,
+    "casting_target": "Enemy",
+    "casting_type": "Targeting",
+    "cooltime": 180,
+    "description": "#asset/base/text/champion?description.minato.skill",
+    "duration": 20,
+    "growth_range": 0,
+    "range": 50000,
+    "start_timing": 8,
+    "effect": {
+      "type": "SwitchByBuff",
+      "buff_name": "raijin_ready",
+      "effect_none": {
+        "type": "RushMoveToBack",
+        "speed": 8000,
+        "end_effects": [
+          {
+            "type": "Attack",
+            "damage": 40,
+            "attack_ratio": 70
+          },
+          {
+            "type": "AddBuff",
+            "buff_state": {
+              "name": "hiraishin_mark",
+              "duration": {
+                "Time": {
+                  "tick": 300
+                }
+              },
+              "move_speed_mult": -15
+            }
+          },
+          {
+            "type": "AddCasterBuff",
+            "only_to_enemy": false,
+            "buff_state": {
+              "name": "raijin_ready",
+              "duration": {
+                "Time": {
+                  "tick": 300
+                }
+              }
+            }
+          },
+          {
+            "type": "Sfx",
+            "name": "minato_skill"
+          }
+        ]
+      },
+      "effect_buff": {
+        "type": "RushMoveToBack",
+        "speed": 9500,
+        "end_effects": [
+          {
+            "type": "Attack",
+            "damage": 90,
+            "attack_ratio": 130
+          },
+          {
+            "type": "RemoveCasterBuff",
+            "name": "raijin_ready"
+          },
+          {
+            "type": "AddCasterBuff",
+            "only_to_enemy": false,
+            "buff_state": {
+              "name": "minato_post_warp",
+              "duration": {
+                "Time": {
+                  "tick": 120
+                }
+              },
+              "attack_speed_mult": 35
+            }
+          },
+          {
+            "type": "Sfx",
+            "name": "minato_skill"
+          }
+        ]
+      }
+    }
+  },
+  "skill2": {
+    "action_name": "skill2",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "cancelable": false,
+    "casting_target": "Enemy",
+    "casting_type": "Targeting",
+    "cooltime": 200,
+    "description": "#asset/base/text/champion?description.minato.skill2",
+    "duration": 22,
+    "growth_range": 0,
+    "range": 40000,
+    "start_timing": 12,
+    "effect": {
+      "type": "MoveToTarget",
+      "speed": 9000,
+      "range": 40000,
+      "end_effects": [
+        {
+          "type": "Attack",
+          "damage": 110,
+          "attack_ratio": 140
+        },
+        {
+          "type": "Stun",
+          "duration": 48
+        },
+        {
+          "type": "CasterViewEffect",
+          "name": "rasengan_blast"
+        },
+        {
+          "type": "Sfx",
+          "name": "minato_skill2"
+        }
+      ]
+    }
+  },
+  "ult": {
+    "action_name": "ult",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "cancelable": false,
+    "casting_target": "Enemy",
+    "casting_type": "None",
+    "cooltime": 900,
+    "description": "#asset/base/text/champion?description.minato.ult",
+    "duration": 30,
+    "growth_range": 0,
+    "range": 40000,
+    "start_timing": 14,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "CasterViewEffect",
+          "name": "ult_kunai_spread"
+        },
+        {
+          "type": "Sfx",
+          "name": "minato_ult"
+        },
+        {
+          "type": "AddCasterBuff",
+          "only_to_enemy": false,
+          "buff_state": {
+            "name": "ult_invincibility",
+            "duration": {
+              "Time": {
+                "tick": 150
+              }
+            },
+            "cc_immune": true,
+            "undying": true
+          }
+        },
+        {
+          "type": "Delayed",
+          "tick": 20,
+          "effects": [
+            {
+              "type": "CasterViewEffect",
+              "name": "ult_slashes"
+            },
+            {
+              "type": "RangeEffect",
+              "shape": {
+                "Circle": {
+                  "radius": 40000
+                }
+              },
+              "target": "Enemy",
+              "apply_type": "AroundCaster",
+              "effects": [
+                {
+                  "type": "Attack",
+                  "damage": 70,
+                  "attack_ratio": 80
+                },
+                {
+                  "type": "AddBuff",
+                  "buff_state": {
+                    "name": "hiraishin_mark_ult",
+                    "duration": {
+                      "Time": {
+                        "tick": 180
+                      }
+                    },
+                    "move_speed_mult": -20
+                  }
+                }
+              ]
+            },
+            {
+              "type": "AddCasterBuff",
+              "only_to_enemy": false,
+              "buff_state": {
+                "name": "minato_post_ult",
+                "duration": {
+                  "Time": {
+                    "tick": 180
+                  }
+                },
+                "move_speed_mult": 20,
+                "attack_speed_mult": 30
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "view_effects": [
+    {
+      "type": "Animation",
+      "name": "minato_kunai",
+      "anim": "asset/my_mod/fx/minato_vfx",
+      "tag": "kunai_fly",
+      "is_follow": false
+    },
+    {
+      "type": "Animation",
+      "name": "rasengan_blast",
+      "anim": "asset/my_mod/fx/minato_vfx",
+      "tag": "rasengan_blast",
+      "is_follow": false
+    },
+    {
+      "type": "Animation",
+      "name": "ult_slashes",
+      "anim": "asset/my_mod/fx/minato_vfx",
+      "tag": "ult_slashes",
+      "is_follow": false
+    },
+    {
+      "type": "Animation",
+      "name": "ult_kunai_spread",
+      "anim": "asset/my_mod/fx/minato_vfx",
+      "tag": "ult_kunai_spread",
+      "is_follow": false
+    }
+  ],
+  "view_projectiles": [
+    {
+      "type": "Animated",
+      "name": "minato_attack",
+      "anim": "asset/my_mod/fx/minato_vfx",
+      "tag": "kunai_fly",
+      "repeat": true
+    }
+  ],
+  "view_buffs": [],
+  "passive": {
+    "passive_ref": "circus_blade",
+    "params": {
+      "charge_count": 4
+    }
+  },
+  "stack_skill_index": 0
+}

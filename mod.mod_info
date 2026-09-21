@@ -1,0 +1,15 @@
+{
+  "name": "My Mod",
+  "author": "You",
+  "id": "my_mod",
+  "mod_id": "my_mod",
+  "version": "0.1.0",
+  "description": "Stable Teamfight Manager 2 champion mod",
+  "last_updated": "2026-09-07",
+  "dependencies": [
+    {
+      "mod_id": "base",
+      "version": ">=0.4.11"
+    }
+  ]
+}

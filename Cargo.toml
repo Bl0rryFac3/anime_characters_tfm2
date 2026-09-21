@@ -1,0 +1,10 @@
+[package]
+name = "my_mod"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+mod_api_stable = { package = "mod-api-stable", path = "C:/Program Files (x86)/Steam/steamapps/common/Teamfight Manager2/mod-sdk-stable/mod-api-stable" }

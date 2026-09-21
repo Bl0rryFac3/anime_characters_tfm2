@@ -1,0 +1,614 @@
+bookmarks = []
+level_growth_uses_total = true
+
+[metadata]
+mod_id = "my_mod"
+name = "My Mod"
+author = "You"
+version = "0.1.0"
+description = "Stable Teamfight Manager 2 champion mod"
+sdk_path = "C:/Program Files (x86)/Steam/steamapps/common/Teamfight Manager2/mod-sdk-stable"
+mods_root = "mods"
+crate_path = 'workspace\my_mod_crate'
+export_root = 'mods\my_mod'
+managed_workspace = false
+portable_bundle = true
+last_updated = "2026-09-07T04:43:39.584223400+00:00"
+
+[[champions]]
+id = "saitama"
+name = "Saitama"
+implementation = "Data"
+category = "Melee"
+tags = [
+    "Ad",
+    "Melee",
+]
+buffs = []
+formulas = []
+spawns = []
+persistent_states = []
+sprite_folder = ""
+sprite_source_kind = "RuntimeAssets"
+sprite_aseprite_path = ""
+sprite_sheet_path = "champions/saitama#sheet.png"
+sprite_anim_path = "champions/saitama#anim.fanim"
+sprite_anim_key = "skill"
+icon_q_path = ""
+icon_w_path = ""
+icon_r_path = ""
+stat_generation_mode = "ClassConvention"
+export_selected = true
+
+[champions.stat]
+attack = 100
+magic_power = 0
+hp = 1000
+defence = 25
+magic_resistance = 25
+move_speed = 1100
+hp_regen = 0
+stack = 0
+crit_chance = 0
+
+[champions.growth]
+attack = 20
+magic_power = 0
+hp = 100
+defence = 5
+magic_resistance = 5
+move_speed = 10
+hp_regen = 0
+stack = 0
+crit_chance = 0
+
+[champions.attack_graph]
+description = ""
+range = 15000
+growth_range = 0
+start_timing = 6
+duration = 16
+cancelable = true
+cooltime = 45
+casting_type = "Targeting"
+casting_target = "Enemy"
+cooltime_use_count = 1
+can_use_with_move = false
+groups = []
+
+[champions.skill_graph]
+description = ""
+range = 15000
+growth_range = 0
+start_timing = 5
+duration = 18
+cancelable = false
+cooltime = 140
+casting_type = "Targeting"
+casting_target = "Enemy"
+cooltime_use_count = 1
+can_use_with_move = false
+groups = []
+
+[champions.skill2_graph]
+description = ""
+range = 15000
+growth_range = 0
+start_timing = 5
+duration = 18
+cancelable = false
+cooltime = 160
+casting_type = "Targeting"
+casting_target = "Enemy"
+cooltime_use_count = 1
+can_use_with_move = false
+groups = []
+
+[champions.ult_graph]
+description = ""
+range = 0
+growth_range = 0
+start_timing = 8
+duration = 30
+cancelable = false
+cooltime = 900
+casting_type = "None"
+casting_target = "Enemy"
+cooltime_use_count = 1
+can_use_with_move = false
+groups = []
+
+[champions.passive_graph]
+description = ""
+range = 0
+growth_range = 0
+start_timing = 12
+duration = 24
+cancelable = false
+cooltime = 60
+casting_type = "Targeting"
+casting_target = "Enemy"
+cooltime_use_count = 1
+can_use_with_move = false
+groups = []
+
+[champions.passive_events.on_spawn]
+description = ""
+range = 0
+growth_range = 0
+start_timing = 12
+duration = 24
+cancelable = false
+cooltime = 60
+casting_type = "Targeting"
+casting_target = "Enemy"
+cooltime_use_count = 1
+can_use_with_move = false
+groups = []
+
+[champions.passive_events.on_attack]
+description = ""
+range = 0
+growth_range = 0
+start_timing = 12
+duration = 24
+cancelable = false
+cooltime = 60
+casting_type = "Targeting"
+casting_target = "Enemy"
+cooltime_use_count = 1
+can_use_with_move = false
+groups = []
+
+[champions.passive_events.on_damaged]
+description = ""
+range = 0
+growth_range = 0
+start_timing = 12
+duration = 24
+cancelable = false
+cooltime = 60
+casting_type = "Targeting"
+casting_target = "Enemy"
+cooltime_use_count = 1
+can_use_with_move = false
+groups = []
+
+[champions.passive_events.on_kill]
+description = ""
+range = 0
+growth_range = 0
+start_timing = 12
+duration = 24
+cancelable = false
+cooltime = 60
+casting_type = "Targeting"
+casting_target = "Enemy"
+cooltime_use_count = 1
+can_use_with_move = false
+groups = []
+
+[champions.passive_events.on_assist]
+description = ""
+range = 0
+growth_range = 0
+start_timing = 12
+duration = 24
+cancelable = false
+cooltime = 60
+casting_type = "Targeting"
+casting_target = "Enemy"
+cooltime_use_count = 1
+can_use_with_move = false
+groups = []
+
+[champions.passive_events.on_update]
+description = ""
+range = 0
+growth_range = 0
+start_timing = 12
+duration = 24
+cancelable = false
+cooltime = 60
+casting_type = "Targeting"
+casting_target = "Enemy"
+cooltime_use_count = 1
+can_use_with_move = false
+groups = []
+
+[champions.passive_events.on_base_attack]
+description = ""
+range = 0
+growth_range = 0
+start_timing = 12
+duration = 24
+cancelable = false
+cooltime = 60
+casting_type = "Targeting"
+casting_target = "Enemy"
+cooltime_use_count = 1
+can_use_with_move = false
+groups = []
+
+[champions.passive_events.on_dead]
+description = ""
+range = 0
+growth_range = 0
+start_timing = 12
+duration = 24
+cancelable = false
+cooltime = 60
+casting_type = "Targeting"
+casting_target = "Enemy"
+cooltime_use_count = 1
+can_use_with_move = false
+groups = []
+
+[[champions.native_effects]]
+name = "saitama_combo_tick"
+groups = []
+projectile_hit_policy = "None"
+projectile_hit_marker_duration = 60
+projectile_hit_max_hits = 1
+projectile_hit_multiplier = 0.5
+
+[[champions.native_effects]]
+name = "saitama_skill_punch"
+groups = []
+projectile_hit_policy = "None"
+projectile_hit_marker_duration = 60
+projectile_hit_max_hits = 1
+projectile_hit_multiplier = 0.5
+
+[[champions.native_effects]]
+name = "saitama_skill_punch2"
+groups = []
+projectile_hit_policy = "None"
+projectile_hit_marker_duration = 60
+projectile_hit_max_hits = 1
+projectile_hit_multiplier = 0.5
+
+[[champions.native_effects]]
+name = "saitama_serious_mode"
+groups = []
+projectile_hit_policy = "None"
+projectile_hit_marker_duration = 60
+projectile_hit_max_hits = 1
+projectile_hit_multiplier = 0.5
+
+[[champions.native_effects]]
+name = "saitama_table_flip_hit"
+groups = []
+projectile_hit_policy = "None"
+projectile_hit_marker_duration = 60
+projectile_hit_max_hits = 1
+projectile_hit_multiplier = 0.5
+
+[champions.data]
+sprite = "asset/my_mod/champions/saitama"
+skill_icons = [
+    "asset/my_mod/icons/saitama_skill",
+    "asset/my_mod/icons/saitama_skill2",
+    "asset/my_mod/icons/saitama_ult",
+]
+anim_prefix = ""
+view_buffs = []
+sfx_references = []
+stack_skill_index = 0
+
+[champions.data.attack]
+action_name = "attack"
+description = "#asset/base/text/champion?description.saitama.attack"
+duration = 16
+cooltime = 45
+start_timing = 6
+cancelable = true
+range = 15000
+growth_range = 0
+casting_type = "Targeting"
+casting_target = "Enemy"
+attack_type = "BaseAttack"
+can_use_with_move = false
+
+[champions.data.attack.effect]
+kind = "Combine"
+disabled = false
+
+[[champions.data.attack.effect.effects]]
+kind = "Attack"
+disabled = false
+amount = 0
+attack_ratio = 100
+ap_ratio = 0
+hp_ratio = 0
+target_hp_ratio = 0
+
+[[champions.data.attack.effect.effects]]
+kind = "Native"
+disabled = false
+effect_ref = "saitama_combo_tick"
+
+[[champions.data.attack.effect.effects]]
+kind = "Sfx"
+disabled = false
+name = "saitama_punch_sfx"
+
+[champions.data.skill]
+action_name = "skill"
+description = "#asset/base/text/champion?description.saitama.skill"
+duration = 18
+cooltime = 140
+start_timing = 5
+cancelable = false
+range = 15000
+growth_range = 0
+casting_type = "Targeting"
+casting_target = "Enemy"
+attack_type = "Skill"
+can_use_with_move = false
+
+[champions.data.skill.effect]
+kind = "Combine"
+disabled = false
+
+[[champions.data.skill.effect.effects]]
+kind = "Native"
+disabled = false
+effect_ref = "saitama_skill_punch"
+
+[[champions.data.skill.effect.effects]]
+kind = "Sfx"
+disabled = false
+name = "saitama_punch_sfx"
+
+[[champions.data.skill.effect.effects]]
+kind = "CasterViewEffect"
+disabled = false
+name = "saitama_punch_impact"
+
+[champions.data.skill2]
+action_name = "skill2"
+description = "#asset/base/text/champion?description.saitama.skill2"
+duration = 18
+cooltime = 160
+start_timing = 5
+cancelable = false
+range = 15000
+growth_range = 0
+casting_type = "Targeting"
+casting_target = "Enemy"
+attack_type = "Skill"
+can_use_with_move = false
+
+[champions.data.skill2.effect]
+kind = "Combine"
+disabled = false
+
+[[champions.data.skill2.effect.effects]]
+kind = "Native"
+disabled = false
+effect_ref = "saitama_skill_punch2"
+
+[[champions.data.skill2.effect.effects]]
+kind = "Sfx"
+disabled = false
+name = "saitama_punch_sfx"
+
+[[champions.data.skill2.effect.effects]]
+kind = "CasterViewEffect"
+disabled = false
+name = "saitama_punch_impact"
+
+[champions.data.ult]
+action_name = "ult"
+description = "#asset/base/text/champion?description.saitama.ult"
+duration = 30
+cooltime = 900
+start_timing = 8
+cancelable = false
+range = 0
+growth_range = 0
+casting_type = "None"
+casting_target = "Enemy"
+attack_type = "Skill"
+can_use_with_move = false
+
+[champions.data.ult.effect]
+kind = "Combine"
+disabled = false
+
+[[champions.data.ult.effect.effects]]
+kind = "Native"
+disabled = false
+effect_ref = "saitama_serious_mode"
+
+[[champions.data.ult.effect.effects]]
+kind = "Sfx"
+disabled = false
+name = "saitama_serious_sfx"
+
+[[champions.data.ult.effect.effects]]
+kind = "CasterViewEffect"
+disabled = false
+name = "saitama_serious_transform"
+
+[[champions.data.view_effects]]
+type = "Animation"
+name = "saitama_punch_impact"
+anim_ref = ""
+anim_path = "saitama/anim fanim/saitama_vfx#anim.fanim"
+sprite_ref = ""
+sprite_path = ""
+tag = ""
+pre_tag = ""
+loop_tag = ""
+remove_tag = ""
+is_follow = false
+
+[[champions.data.view_effects]]
+type = "Animation"
+name = "saitama_serious_transform"
+anim_ref = ""
+anim_path = "saitama/anim fanim/saitama_vfx#anim.fanim"
+sprite_ref = ""
+sprite_path = ""
+tag = ""
+pre_tag = ""
+loop_tag = ""
+remove_tag = ""
+is_follow = false
+
+[[champions.data.view_effects]]
+type = "Animation"
+name = "saitama_serious_punch_impact"
+anim_ref = ""
+anim_path = "saitama/anim fanim/saitama_vfx#anim.fanim"
+sprite_ref = ""
+sprite_path = ""
+tag = ""
+pre_tag = ""
+loop_tag = ""
+remove_tag = ""
+is_follow = false
+
+[[champions.data.view_effects]]
+type = "Animation"
+name = "saitama_death_punch_impact"
+anim_ref = ""
+anim_path = "saitama/anim fanim/saitama_vfx#anim.fanim"
+sprite_ref = ""
+sprite_path = ""
+tag = ""
+pre_tag = ""
+loop_tag = ""
+remove_tag = ""
+is_follow = false
+
+[[champions.data.view_effects]]
+type = "Animation"
+name = "saitama_table_flip"
+anim_ref = ""
+anim_path = "saitama/anim fanim/saitama_vfx#anim.fanim"
+sprite_ref = ""
+sprite_path = ""
+tag = ""
+pre_tag = ""
+loop_tag = ""
+remove_tag = ""
+is_follow = false
+
+[[champions.data.view_projectiles]]
+type = "Animated"
+name = "saitama_table_flip"
+anim_ref = ""
+anim_path = "saitama/anim fanim/saitama_vfx#anim.fanim"
+sprite_ref = ""
+sprite_path = ""
+tag = ""
+pre_tag = ""
+loop_tag = ""
+remove_tag = ""
+repeat = true
+
+[champions.data.passive]
+passive_ref = "berserker"
+
+[champions.data.passive.params]
+cooltime_reduction = 2
+max_cooltime_reduction = 30
+
+[champion_view.entries.saitama.face]
+x = 0
+y = -34
+
+[champion_view.entries.saitama.center]
+x = 0
+y = -14
+
+[i18n.en.description.saitama]
+name = "Saitama"
+skill = ""
+skill2 = ""
+ult = ""
+
+[imported_overrides]
+
+[balance_conventions.assassin_ad]
+hp = 800
+hp_growth = 0
+ad = 90
+ad_growth = 15
+ap = 0
+ap_growth = 0
+
+[balance_conventions.assassin_ap]
+hp = 800
+hp_growth = 0
+ad = 70
+ad_growth = 7
+ap = 40
+ap_growth = 20
+
+[balance_conventions.mage_ad]
+hp = 800
+hp_growth = 0
+ad = 90
+ad_growth = 15
+ap = 0
+ap_growth = 0
+
+[balance_conventions.mage_ap]
+hp = 800
+hp_growth = 0
+ad = 70
+ad_growth = 7
+ap = 40
+ap_growth = 20
+
+[balance_conventions.ad_carry_ad]
+hp = 800
+hp_growth = 0
+ad = 90
+ad_growth = 15
+ap = 0
+ap_growth = 0
+
+[balance_conventions.ad_carry_ap]
+hp = 800
+hp_growth = 0
+ad = 70
+ad_growth = 7
+ap = 40
+ap_growth = 20
+
+[balance_conventions.bruiser_ad]
+hp = 900
+hp_growth = 0
+ad = 90
+ad_growth = 15
+ap = 0
+ap_growth = 0
+
+[balance_conventions.bruiser_ap]
+hp = 900
+hp_growth = 0
+ad = 70
+ad_growth = 7
+ap = 30
+ap_growth = 0
+
+[balance_conventions.tank_ad]
+hp = 1000
+hp_growth = 0
+ad = 85
+ad_growth = 15
+ap = 0
+ap_growth = 0
+
+[balance_conventions.tank_ap]
+hp = 1000
+hp_growth = 0
+ad = 75
+ad_growth = 7
+ap = 15
+ap_growth = 0

@@ -1,0 +1,45 @@
+{
+  "anims": {
+    "saitama_serious_transform": {
+      "frames": [
+        { "duration": 0.1, "data": { "x": 51,   "y": 140, "w": 134, "h": 64 } },
+        { "duration": 0.1, "data": { "x": 221,  "y": 132, "w": 133, "h": 75 } },
+        { "duration": 0.1, "data": { "x": 402,  "y": 105, "w": 130, "h": 98 } },
+        { "duration": 0.1, "data": { "x": 561,  "y": 116, "w": 133, "h": 100 } },
+        { "duration": 0.1, "data": { "x": 710,  "y": 108, "w": 133, "h": 100 } },
+        { "duration": 0.1, "data": { "x": 869,  "y": 114, "w": 133, "h": 100 } },
+        { "duration": 0.1, "data": { "x": 1034, "y": 113, "w": 133, "h": 100 } }
+      ]
+    },
+    "saitama_serious_punch_impact": {
+      "frames": [
+        { "duration": 0.1, "data": { "x": 50,  "y": 267, "w": 123, "h": 226 } },
+        { "duration": 0.1, "data": { "x": 210, "y": 260, "w": 123, "h": 226 } },
+        { "duration": 0.1, "data": { "x": 389, "y": 263, "w": 123, "h": 226 } },
+        { "duration": 0.1, "data": { "x": 542, "y": 266, "w": 123, "h": 226 } },
+        { "duration": 0.1, "data": { "x": 734, "y": 263, "w": 123, "h": 226 } }
+      ]
+    },
+    "saitama_death_punch_impact": {
+      "frames": [
+        { "duration": 0.1, "data": { "x": 47,  "y": 593, "w": 52, "h": 59 } },
+        { "duration": 0.1, "data": { "x": 96,  "y": 591, "w": 96, "h": 60 } },
+        { "duration": 0.1, "data": { "x": 227, "y": 578, "w": 91, "h": 85 } }
+      ]
+    },
+    "saitama_punch_impact": {
+      "frames": [
+        { "duration": 0.1, "data": { "x": 14,  "y": 734, "w": 115, "h": 44 } },
+        { "duration": 0.1, "data": { "x": 159, "y": 723, "w": 124, "h": 52 } },
+        { "duration": 0.1, "data": { "x": 321, "y": 719, "w": 171, "h": 59 } }
+      ]
+    },
+    "saitama_table_flip": {
+      "frames": [
+        { "duration": 0.1, "data": { "x": 44,  "y": 854, "w": 81,  "h": 148 } },
+        { "duration": 0.1, "data": { "x": 150, "y": 887, "w": 102, "h": 98 } },
+        { "duration": 0.1, "data": { "x": 302, "y": 887, "w": 68,  "h": 100 } }
+      ]
+    }
+  }
+}

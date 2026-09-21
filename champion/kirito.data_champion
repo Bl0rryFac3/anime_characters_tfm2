@@ -1,0 +1,1122 @@
+{
+  "id": "kirito",
+  "category": "Melee",
+  "tags": [
+    "AD",
+    "Melee"
+  ],
+  "sprite": "asset/my_mod/champions/kirito",
+  "anim_prefix": "",
+  "stat": {
+    "attack": 95,
+    "crit_chance": 15,
+    "defence": 18,
+    "hp": 850,
+    "hp_regen": 0,
+    "magic_power": 0,
+    "magic_resistance": 18,
+    "move_speed": 1200,
+    "stack": 0
+  },
+  "skill_icons": [
+    "asset/my_mod/icons/kirito_skill",
+    "asset/my_mod/icons/kirito_skill2",
+    "asset/my_mod/icons/kirito_ult"
+  ],
+  "growth": {
+    "attack": 19,
+    "crit_chance": 0,
+    "defence": 4,
+    "hp": 90,
+    "hp_regen": 0,
+    "magic_power": 0,
+    "magic_resistance": 4,
+    "move_speed": 10,
+    "stack": 0
+  },
+  "attack": {
+    "action_name": "attack",
+    "attack_type": "BaseAttack",
+    "can_use_with_move": false,
+    "cancelable": true,
+    "casting_target": "Enemy",
+    "casting_type": "Targeting",
+    "cooltime": 42,
+    "description": "#asset/base/text/champion?description.kirito.attack",
+    "duration": 16,
+    "effect": {
+      "type": "SwitchByBuff",
+      "buff_name": "kirito_chain_2",
+      "effect_buff": {
+        "type": "Combine",
+        "effects": [
+          {
+            "type": "Attack",
+            "damage": 0,
+            "attack_ratio": 115,
+            "ap_ratio": 0,
+            "hp_ratio": 0,
+            "target_hp_ratio": 0,
+            "attack_effect_type": "Target"
+          },
+          {
+            "type": "AddCasterBuff",
+            "only_to_enemy": false,
+            "buff_state": {
+              "name": "kirito_chain_2",
+              "duration": {
+                "Time": {
+                  "tick": 240
+                }
+              }
+            }
+          },
+          {
+            "type": "Sfx",
+            "name": "kirito_attack_sfx"
+          }
+        ]
+      },
+      "effect_none": {
+        "type": "SwitchByBuff",
+        "buff_name": "kirito_chain_1",
+        "effect_buff": {
+          "type": "Combine",
+          "effects": [
+            {
+              "type": "Attack",
+              "damage": 0,
+              "attack_ratio": 108,
+              "ap_ratio": 0,
+              "hp_ratio": 0,
+              "target_hp_ratio": 0,
+              "attack_effect_type": "Target"
+            },
+            {
+              "type": "RemoveCasterBuff",
+              "name": "kirito_chain_1"
+            },
+            {
+              "type": "AddCasterBuff",
+              "only_to_enemy": false,
+              "buff_state": {
+                "name": "kirito_chain_2",
+                "duration": {
+                  "Time": {
+                    "tick": 240
+                  }
+                }
+              }
+            },
+            {
+              "type": "Sfx",
+              "name": "kirito_attack_sfx"
+            }
+          ]
+        },
+        "effect_none": {
+          "type": "Combine",
+          "effects": [
+            {
+              "type": "Attack",
+              "damage": 0,
+              "attack_ratio": 100,
+              "ap_ratio": 0,
+              "hp_ratio": 0,
+              "target_hp_ratio": 0,
+              "attack_effect_type": "Target"
+            },
+            {
+              "type": "AddCasterBuff",
+              "only_to_enemy": false,
+              "buff_state": {
+                "name": "kirito_chain_1",
+                "duration": {
+                  "Time": {
+                    "tick": 240
+                  }
+                }
+              }
+            },
+            {
+              "type": "Sfx",
+              "name": "kirito_attack_sfx"
+            }
+          ]
+        }
+      }
+    },
+    "growth_range": 0,
+    "range": 15000,
+    "start_timing": 6
+  },
+  "skill": {
+    "action_name": "skill",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "cancelable": false,
+    "casting_target": "EnemyWithoutTower",
+    "casting_type": "Targeting",
+    "cooltime": 150,
+    "description": "#asset/base/text/champion?description.kirito.skill",
+    "duration": 60,
+    "effect": {
+      "type": "SwitchByBuff",
+      "buff_name": "kirito_chain_2",
+      "effect_buff": {
+        "type": "Combine",
+        "effects": [
+          {
+            "type": "RangeEffect",
+            "shape": {
+              "Circle": {
+                "radius": 30000
+              }
+            },
+            "target": "Enemy",
+            "apply_type": "AroundCaster",
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 90,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "AddCasterBuff",
+            "only_to_enemy": false,
+            "buff_state": {
+              "name": "kirito_chain_2",
+              "duration": {
+                "Time": {
+                  "tick": 240
+                }
+              }
+            }
+          },
+          {
+            "type": "CasterViewEffect",
+            "name": "kirito_circular"
+          },
+          {
+            "type": "Sfx",
+            "name": "kirito_skill_sfx"
+          }
+        ]
+      },
+      "effect_none": {
+        "type": "SwitchByBuff",
+        "buff_name": "kirito_chain_1",
+        "effect_buff": {
+          "type": "Combine",
+          "effects": [
+            {
+              "type": "Delayed",
+              "tick": 0,
+              "effects": [
+                {
+                  "type": "Attack",
+                  "damage": 0,
+                  "attack_ratio": 75,
+                  "ap_ratio": 0,
+                  "hp_ratio": 0,
+                  "target_hp_ratio": 0,
+                  "attack_effect_type": "Target"
+                },
+                {
+                  "type": "CasterViewEffect",
+                  "name": "kirito_slash"
+                }
+              ]
+            },
+            {
+              "type": "Delayed",
+              "tick": 6,
+              "effects": [
+                {
+                  "type": "Attack",
+                  "damage": 0,
+                  "attack_ratio": 75,
+                  "ap_ratio": 0,
+                  "hp_ratio": 0,
+                  "target_hp_ratio": 0,
+                  "attack_effect_type": "Target"
+                }
+              ]
+            },
+            {
+              "type": "RemoveCasterBuff",
+              "name": "kirito_chain_1"
+            },
+            {
+              "type": "AddCasterBuff",
+              "only_to_enemy": false,
+              "buff_state": {
+                "name": "kirito_chain_2",
+                "duration": {
+                  "Time": {
+                    "tick": 240
+                  }
+                }
+              }
+            },
+            {
+              "type": "Sfx",
+              "name": "kirito_skill_sfx"
+            }
+          ]
+        },
+        "effect_none": {
+          "type": "Combine",
+          "effects": [
+            {
+              "type": "Delayed",
+              "tick": 0,
+              "effects": [
+                {
+                  "type": "Attack",
+                  "damage": 0,
+                  "attack_ratio": 55,
+                  "ap_ratio": 0,
+                  "hp_ratio": 0,
+                  "target_hp_ratio": 0,
+                  "attack_effect_type": "Target"
+                },
+                {
+                  "type": "CasterViewEffect",
+                  "name": "kirito_slash"
+                }
+              ]
+            },
+            {
+              "type": "Delayed",
+              "tick": 6,
+              "effects": [
+                {
+                  "type": "Attack",
+                  "damage": 0,
+                  "attack_ratio": 55,
+                  "ap_ratio": 0,
+                  "hp_ratio": 0,
+                  "target_hp_ratio": 0,
+                  "attack_effect_type": "Target"
+                }
+              ]
+            },
+            {
+              "type": "AddCasterBuff",
+              "only_to_enemy": false,
+              "buff_state": {
+                "name": "kirito_chain_1",
+                "duration": {
+                  "Time": {
+                    "tick": 240
+                  }
+                }
+              }
+            },
+            {
+              "type": "Sfx",
+              "name": "kirito_skill_sfx"
+            }
+          ]
+        }
+      }
+    },
+    "growth_range": 0,
+    "range": 18000,
+    "start_timing": 5
+  },
+  "skill2": {
+    "action_name": "skill2",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "cancelable": false,
+    "casting_target": "EnemyWithoutTower",
+    "casting_type": "Targeting",
+    "cooltime": 240,
+    "description": "#asset/base/text/champion?description.kirito.skill2",
+    "duration": 70,
+    "effect": {
+      "type": "SwitchByBuff",
+      "buff_name": "kirito_chain_2",
+      "effect_buff": {
+        "type": "Combine",
+        "effects": [
+          {
+            "type": "Attack",
+            "damage": 0,
+            "attack_ratio": 150,
+            "ap_ratio": 0,
+            "hp_ratio": 0,
+            "target_hp_ratio": 0,
+            "attack_effect_type": "Target"
+          },
+          {
+            "type": "RemoveCasterBuff",
+            "name": "kirito_chain_2"
+          },
+          {
+            "type": "AddCasterBuff",
+            "only_to_enemy": false,
+            "buff_state": {
+              "name": "kirito_dual_blades",
+              "duration": {
+                "Time": {
+                  "tick": 360
+                }
+              },
+              "attack_speed_mult": 40,
+              "attack_mult": 25
+            }
+          },
+          {
+            "type": "CasterViewEffect",
+            "name": "kirito_switch"
+          },
+          {
+            "type": "Sfx",
+            "name": "kirito_skill2_sfx"
+          }
+        ]
+      },
+      "effect_none": {
+        "type": "Combine",
+        "effects": [
+          {
+            "type": "Attack",
+            "damage": 0,
+            "attack_ratio": 90,
+            "ap_ratio": 0,
+            "hp_ratio": 0,
+            "target_hp_ratio": 0,
+            "attack_effect_type": "Target"
+          },
+          {
+            "type": "CasterViewEffect",
+            "name": "kirito_switch"
+          },
+          {
+            "type": "Sfx",
+            "name": "kirito_skill2_sfx"
+          }
+        ]
+      }
+    },
+    "growth_range": 0,
+    "range": 18000,
+    "start_timing": 5
+  },
+  "ult": {
+    "action_name": "ult",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "cancelable": false,
+    "casting_target": "EnemyChampion",
+    "casting_type": "Targeting",
+    "cooltime": 900,
+    "description": "#asset/base/text/champion?description.kirito.ult",
+    "duration": 60,
+    "effect": {
+      "type": "SwitchByBuff",
+      "buff_name": "kirito_dual_blades",
+      "effect_buff": {
+        "type": "Combine",
+        "effects": [
+          {
+            "type": "Delayed",
+            "tick": 0,
+            "effects": [
+              {
+                "type": "CasterViewEffect",
+                "name": "kirito_starburst"
+              },
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 8,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              },
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 8,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 3,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 10,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              },
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 10,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 6,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 12,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              },
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 12,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 9,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 14,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              },
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 14,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 12,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 16,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              },
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 16,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 15,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 18,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              },
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 18,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 18,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 20,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              },
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 20,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 21,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 22,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              },
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 22,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 24,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 24,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              },
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 24,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 27,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 26,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              },
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 26,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 30,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 28,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              },
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 28,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 33,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 30,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              },
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 30,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 36,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 32,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              },
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 32,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 39,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 34,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              },
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 34,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 42,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 36,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              },
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 36,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 45,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 38,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              },
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 38,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Sfx",
+            "name": "kirito_ult_sfx"
+          }
+        ]
+      },
+      "effect_none": {
+        "type": "Combine",
+        "effects": [
+          {
+            "type": "Delayed",
+            "tick": 0,
+            "effects": [
+              {
+                "type": "CasterViewEffect",
+                "name": "kirito_starburst"
+              },
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 8,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 3,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 10,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 6,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 12,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 9,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 14,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 12,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 16,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 15,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 18,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 18,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 20,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 21,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 22,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 24,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 24,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 27,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 26,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 30,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 28,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 33,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 30,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 36,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 32,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 39,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 34,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 42,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 36,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 45,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 38,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              }
+            ]
+          },
+          {
+            "type": "Sfx",
+            "name": "kirito_ult_sfx"
+          }
+        ]
+      }
+    },
+    "growth_range": 0,
+    "range": 20000,
+    "start_timing": 8
+  },
+  "view_effects": [
+    {
+      "type": "Animation",
+      "name": "kirito_slash",
+      "anim": "asset/my_mod/fx/kirito_vfx",
+      "is_follow": false,
+      "tag": "kirito_slash"
+    },
+    {
+      "type": "Animation",
+      "name": "kirito_circular",
+      "anim": "asset/my_mod/fx/kirito_vfx",
+      "is_follow": false,
+      "tag": "kirito_circular"
+    },
+    {
+      "type": "Animation",
+      "name": "kirito_switch",
+      "anim": "asset/my_mod/fx/kirito_vfx",
+      "is_follow": false,
+      "tag": "kirito_switch"
+    },
+    {
+      "type": "Animation",
+      "name": "kirito_starburst",
+      "anim": "asset/my_mod/fx/kirito_vfx",
+      "is_follow": false,
+      "tag": "kirito_starburst"
+    }
+  ],
+  "view_projectiles": [],
+  "passive": {
+    "passive_ref": "berserker",
+    "params": {
+      "cooltime_reduction": 3,
+      "max_cooltime_reduction": 36
+    }
+  },
+  "stack_skill_index": 0
+}

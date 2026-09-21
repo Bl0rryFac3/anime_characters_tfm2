@@ -1,0 +1,381 @@
+{
+  "id": "naruto",
+  "category": "Melee",
+  "tags": [
+    "AD",
+    "Melee",
+    "CC"
+  ],
+  "sprite": "asset/my_mod/champions/naruto",
+  "anim_prefix": "",
+  "stat": {
+    "attack": 82,
+    "crit_chance": 12,
+    "defence": 26,
+    "hp": 1120,
+    "hp_regen": 3,
+    "magic_power": 0,
+    "magic_resistance": 22,
+    "move_speed": 1050,
+    "stack": 0
+  },
+  "skill_icons": [
+    "asset/my_mod/icons/naruto_skill",
+    "asset/my_mod/icons/naruto_skill2",
+    "asset/my_mod/icons/naruto_ult"
+  ],
+  "growth": {
+    "attack": 16,
+    "crit_chance": 0,
+    "defence": 6,
+    "hp": 105,
+    "hp_regen": 1,
+    "magic_power": 0,
+    "magic_resistance": 4,
+    "move_speed": 8,
+    "stack": 0
+  },
+  "attack": {
+    "action_name": "attack",
+    "attack_type": "BaseAttack",
+    "can_use_with_move": false,
+    "cancelable": true,
+    "casting_target": "Enemy",
+    "casting_type": "Targeting",
+    "cooltime": 55,
+    "description": "#asset/base/text/champion?description.naruto.attack",
+    "duration": 18,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Attack",
+          "damage": 0,
+          "attack_ratio": 100,
+          "ap_ratio": 0,
+          "hp_ratio": 0,
+          "target_hp_ratio": 0,
+          "attack_effect_type": "Target"
+        },
+        {
+          "type": "Sfx",
+          "name": "naruto_attack"
+        }
+      ]
+    },
+    "growth_range": 0,
+    "range": 22000,
+    "start_timing": 8
+  },
+  "skill": {
+    "action_name": "skill",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "cancelable": false,
+    "casting_target": "Enemy",
+    "casting_type": "Targeting",
+    "cooltime": 260,
+    "description": "#asset/base/text/champion?description.naruto.skill",
+    "duration": 20,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "CasterViewEffect",
+          "name": "naruto_smoke_cast"
+        },
+        {
+          "type": "Sfx",
+          "name": "naruto_clone_spawn"
+        },
+        {
+          "type": "Native",
+          "effect_ref": "naruto_spawn_one_clone"
+        },
+        {
+          "type": "Delayed",
+          "tick": 8,
+          "effects": [
+            {
+              "type": "CasterViewEffect",
+              "name": "naruto_clone_strike"
+            },
+            {
+              "type": "Attack",
+              "damage": 50,
+              "attack_ratio": 70,
+              "ap_ratio": 0,
+              "hp_ratio": 0,
+              "target_hp_ratio": 0,
+              "attack_effect_type": "Target"
+            }
+          ]
+        }
+      ]
+    },
+    "growth_range": 0,
+    "range": 50000,
+    "start_timing": 6
+  },
+  "skill2": {
+    "action_name": "skill2",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "cancelable": false,
+    "casting_target": "Enemy",
+    "casting_type": "Targeting",
+    "cooltime": 320,
+    "description": "#asset/base/text/champion?description.naruto.skill2",
+    "duration": 24,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "CasterViewEffect",
+          "name": "naruto_smoke_cast"
+        },
+        {
+          "type": "Native",
+          "effect_ref": "naruto_spawn_two_clones"
+        },
+        {
+          "type": "MoveToTarget",
+          "speed": 9500,
+          "range": 45000,
+          "end_effects": [
+            {
+              "type": "Attack",
+              "damage": 80,
+              "attack_ratio": 110,
+              "ap_ratio": 0,
+              "hp_ratio": 0,
+              "target_hp_ratio": 0,
+              "attack_effect_type": "Target"
+            },
+            {
+              "type": "CasterViewEffect",
+              "name": "naruto_clone_strike"
+            },
+            {
+              "type": "Delayed",
+              "tick": 4,
+              "effects": [
+                {
+                  "type": "CasterViewEffect",
+                  "name": "naruto_clone_strike"
+                },
+                {
+                  "type": "Attack",
+                  "damage": 50,
+                  "attack_ratio": 60,
+                  "ap_ratio": 0,
+                  "hp_ratio": 0,
+                  "target_hp_ratio": 0,
+                  "attack_effect_type": "Target"
+                }
+              ]
+            },
+            {
+              "type": "Delayed",
+              "tick": 8,
+              "effects": [
+                {
+                  "type": "CasterViewEffect",
+                  "name": "naruto_clone_strike"
+                },
+                {
+                  "type": "Attack",
+                  "damage": 50,
+                  "attack_ratio": 60,
+                  "ap_ratio": 0,
+                  "hp_ratio": 0,
+                  "target_hp_ratio": 0,
+                  "attack_effect_type": "Target"
+                },
+                {
+                  "type": "Stun",
+                  "duration": 36
+                }
+              ]
+            },
+            {
+              "type": "CasterViewEffect",
+              "name": "naruto_rasengan_blast"
+            }
+          ]
+        },
+        {
+          "type": "Sfx",
+          "name": "naruto_rasengan_sfx"
+        }
+      ]
+    },
+    "growth_range": 0,
+    "range": 45000,
+    "start_timing": 10
+  },
+  "ult": {
+    "action_name": "ult",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "cancelable": false,
+    "casting_target": "EnemyChampion",
+    "casting_type": "None",
+    "cooltime": 1200,
+    "description": "#asset/base/text/champion?description.naruto.ult",
+    "duration": 40,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "CasterViewEffect",
+          "name": "naruto_smoke_cast"
+        },
+        {
+          "type": "Sfx",
+          "name": "naruto_clone_spawn"
+        },
+        {
+          "type": "Native",
+          "effect_ref": "naruto_spawn_clone_swarm"
+        },
+        {
+          "type": "Delayed",
+          "tick": 6,
+          "effects": [
+            {
+              "type": "CasterViewEffect",
+              "name": "naruto_clone_strike"
+            },
+            {
+              "type": "Attack",
+              "damage": 40,
+              "attack_ratio": 50,
+              "ap_ratio": 0,
+              "hp_ratio": 0,
+              "target_hp_ratio": 0,
+              "attack_effect_type": "Target"
+            }
+          ]
+        },
+        {
+          "type": "Delayed",
+          "tick": 14,
+          "effects": [
+            {
+              "type": "CasterViewEffect",
+              "name": "naruto_clone_strike"
+            },
+            {
+              "type": "Attack",
+              "damage": 40,
+              "attack_ratio": 50,
+              "ap_ratio": 0,
+              "hp_ratio": 0,
+              "target_hp_ratio": 0,
+              "attack_effect_type": "Target"
+            }
+          ]
+        },
+        {
+          "type": "Delayed",
+          "tick": 22,
+          "effects": [
+            {
+              "type": "CasterViewEffect",
+              "name": "naruto_clone_strike"
+            },
+            {
+              "type": "Attack",
+              "damage": 40,
+              "attack_ratio": 50,
+              "ap_ratio": 0,
+              "hp_ratio": 0,
+              "target_hp_ratio": 0,
+              "attack_effect_type": "Target"
+            }
+          ]
+        },
+        {
+          "type": "Delayed",
+          "tick": 32,
+          "effects": [
+            {
+              "type": "RangeEffect",
+              "shape": {
+                "Circle": {
+                  "radius": 40000
+                }
+              },
+              "target": "Enemy",
+              "apply_type": "AroundCaster",
+              "effects": [
+                {
+                  "type": "Attack",
+                  "damage": 120,
+                  "attack_ratio": 130,
+                  "ap_ratio": 0,
+                  "hp_ratio": 0,
+                  "target_hp_ratio": 0,
+                  "attack_effect_type": "Target"
+                },
+                {
+                  "type": "Airborne",
+                  "duration": 45
+                }
+              ]
+            },
+            {
+              "type": "CasterViewEffect",
+              "name": "naruto_barrage_finisher"
+            },
+            {
+              "type": "Sfx",
+              "name": "naruto_barrage_slam"
+            }
+          ]
+        }
+      ]
+    },
+    "growth_range": 0,
+    "range": 55000,
+    "start_timing": 12
+  },
+  "view_effects": [
+    {
+      "type": "Animation",
+      "name": "naruto_smoke_cast",
+      "anim": "asset/my_mod/fx/naruto_vfx_gba",
+      "tag": "smoke_poof",
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "naruto_clone_strike",
+      "anim": "asset/my_mod/fx/naruto_vfx_dsi",
+      "tag": "clone_ambush",
+      "is_follow": false
+    },
+    {
+      "type": "Animation",
+      "name": "naruto_rasengan_blast",
+      "anim": "asset/my_mod/fx/naruto_vfx_dsi",
+      "tag": "rasengan_impact",
+      "is_follow": false
+    },
+    {
+      "type": "Animation",
+      "name": "naruto_barrage_finisher",
+      "anim": "asset/my_mod/fx/naruto_vfx_dsi",
+      "tag": "barrage_ground_slam",
+      "is_follow": false
+    }
+  ],
+  "passive": {
+    "passive_ref": "circus_blade",
+    "params": {
+      "charge_count": 4
+    }
+  },
+  "stack_skill_index": 0
+}

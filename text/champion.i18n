@@ -1,0 +1,41 @@
+{
+  "en": {
+    "description": {
+      "minato": {
+        "name": "Minato",
+        "attack": "Throws a kunai to deal <#ff9028ff>100% of attack damage<> as physical damage.",
+        "skill": "Flying Raijin: Dashes to the target, dealing <#ef5350ff>40<> + <#ff9028ff>70% of attack damage<> as physical damage and marking them to slow movement speed. If marked, deals <#ef5350ff>90<> + <#ff9028ff>130% of attack damage<> instead and grants Minato 35% attack speed.",
+        "skill2": "Rasengan: Blinks to the enemy, dealing <#ef5350ff>110<> + <#ff9028ff>140% of attack damage<> as physical damage and stunning them.",
+        "ult": "Yellow Flash: Becomes invincible. Unleashes a massive slash dealing <#ef5350ff>70<> + <#ff9028ff>80% of attack damage<> to nearby enemies, slowing them and granting Minato 20 movement speed and 30% attack speed."
+      },
+      "naruto": {
+        "name": "Naruto",
+        "attack": "Strikes the target dealing <#ff9028ff>100% of attack damage<> as physical damage.",
+        "skill": "Shadow Clone: Summons a clone to strike the target, dealing <#ef5350ff>50<> + <#ff9028ff>70% of attack damage<> as physical damage.",
+        "skill2": "Rasengan: Summons two clones and dashes to the target, dealing <#ef5350ff>80<> + <#ff9028ff>110% of attack damage<>. Clones follow up with strikes dealing <#ef5350ff>50<> + <#ff9028ff>60% of attack damage<> each, stunning the target.",
+        "ult": "Wind Release Rasenshuriken: Summons a swarm of clones for 3 strikes dealing <#ef5350ff>40<> + <#ff9028ff>50% of attack damage<> each. Culminates in a giant blast dealing <#ef5350ff>120<> + <#ff9028ff>130% of attack damage<> to nearby enemies and knocks them airborne."
+      },
+      "saitama": {
+        "name": "Saitama",
+        "attack": "Normal Punch: A casual punch dealing <#ff9028ff>100% of attack damage<> as physical damage, building combo stacks.",
+        "skill": "Consecutive Normal Punches: Unleashes a rapid flurry of normal punches to batter the target.",
+        "skill2": "Consecutive Normal Punches: Unleashes a second rapid flurry of normal punches.",
+        "ult": "Serious Mode: Gets serious, heavily enhancing his stats and altering his skills to deliver screen-clearing shockwaves and a massive Table Flip projectile."
+      },
+      "paragon": {
+        "name": "Paragon",
+        "attack": "A heavy strike dealing <#ff9028ff>100% of attack damage<> as physical damage.",
+        "skill": "Wrathgrasp: Yanks the target toward him, dealing <#ff9028ff>140% of attack damage<> as physical damage.",
+        "skill2": "Shatter Chain: Slams the ground to Bind the target in place, dealing <#ff9028ff>90% of attack damage<> as physical damage.",
+        "ult": "Godless: Channels to become immune to death and crowd control. Grants <#ff9028ff>60% increased Attack<> and pulses damage over time to all nearby enemies."
+      },
+      "kirito": {
+        "name": "Kirito",
+        "attack": "Slashes with a single black sword, dealing <#ff9028ff>100% of attack damage<> as physical damage.",
+        "skill": "Horizontal Square: Executes a rapid double slash followed by a 360-degree spinning wind strike, dealing <#ef5350ff>80<> + <#ff9028ff>110% of attack damage<>.",
+        "skill2": "Switch: Dual Blades: Draws a second glowing blade with a bright flash, dealing <#ef5350ff>60<> + <#ff9028ff>90% of attack damage<> and preparing for rapid combat.",
+        "ult": "Starburst Stream: Unleashes a relentless, accelerating 16-hit dual-wielding barrage, culminating in a massive final explosive impact that deals <#ef5350ff>150<> + <#ff9028ff>200% of attack damage<>."
+      }
+    }
+  }
+}
