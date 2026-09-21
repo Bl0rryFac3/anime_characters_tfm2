@@ -1,7 +1,6 @@
-
 # Anime Characters for TFM2
 
-Adds four anime-inspired characters to **Teamfight Manager 2**: **Saitama**, **Paragon**, **Naruto** and **Minato**.
+Adds five anime-inspired characters to **Teamfight Manager 2**: **Saitama**, **Paragon**, **Naruto**, **Minato** and **Kirito**.
 
 Each champion ships with its own sprite sheet, animation data, VFX, ability icons and sound effects. Three of them (Saitama, Paragon and Naruto) drive their abilities through custom native code, so this mod includes compiled Rust alongside the data files.
 
@@ -18,14 +17,14 @@ Each champion ships with its own sprite sheet, animation data, VFX, ability icon
 **Berserker** (Passive)
 Saitama's passive accelerates his cooldowns as he stays in the fight, stacking cooldown reduction up to a hard cap.
 
-**Skill 1** — Melee range, short cooldown.
-A close-range flurry. Driven by custom native code with a dedicated sound effect.
+**Skill 1** — Melee range, short cooldown, AoE around caster.
+A close-range flurry that now hits all enemies nearby. Driven by custom native code with a dedicated sound effect.
 
-**Skill 2** — Melee range, short cooldown.
-A second, longer flurry — the extended version of his Skill 1 combo, also natively scripted.
+**Skill 2** — Melee range, short cooldown, AoE around caster.
+A second, longer flurry — the extended version of his Skill 1 combo, also natively scripted and AoE.
 
 **One-Punch** (Ultimate) — Long range.
-Saitama's only ranged threat. Winds up with a full-screen caster effect before landing the finisher.
+Saitama's only ranged threat. Winds up with a full-screen caster effect before landing the finisher. Can one-shot champions in Serious Mode.
 
 ---
 
@@ -37,7 +36,7 @@ Saitama's only ranged threat. Winds up with a full-screen caster effect before l
 |----|--------|---------|--------------|------------|------|
 | 1300 | 90 | 35 | 30 | 1000 | 0 |
 
-The tankiest of the four, built to soak damage and lock targets down.
+The tankiest of the five, built to soak damage and lock targets down.
 
 **Skill 1** — Short cooldown.
 Fully custom native ability.
@@ -81,7 +80,7 @@ An **area-of-effect** finisher (circle around the caster) that applies **Airborn
 |----|--------|---------|--------------|------------|------|
 | 1050 | 75 | 20 | 20 | 1250 | 16 |
 
-The fastest of the four and the only true ranged Assassin.
+The fastest of the five and the only true ranged Assassin.
 
 **Skill 1** — Long range.
 Rushes **behind** the target and strikes. Uses a buff-state switch, so its behaviour changes depending on Minato's current buffs.
@@ -93,6 +92,32 @@ Dashes to the target and **stuns** it.
 A **delayed area-of-effect** strike (circle around the caster) that also applies buffs to Minato. Natively-flavoured sound included.
 
 > **Note on the ID:** Minato shipped originally under the template ID `my_1st_mod_champion`. He has since been renamed to `minato` throughout — champion ID, assets (`minato#sheet.png`, `minato_skill.png`, …) and registry entries alike.
+
+---
+
+# Kirito
+
+**Category:** Melee · **Tags:** AD, Melee, Combo
+
+| HP | Attack | Defence | Magic Resist | Move Speed | Crit |
+|----|--------|---------|--------------|------------|------|
+| 1080 | 95 | 28 | 22 | 1080 | 10 |
+
+The combo swordsman from SAO. Built around building Chain stacks.
+
+**Passive — Chain**
+Basic attacks and skills build Chain. At 2 stacks, skills change form.
+
+**Skill 1 — Horizontal Square → Circular**
+2-hit sweep that becomes a 360° circular slash at 2 Chain stacks. Short cooldown.
+
+**Skill 2 — Switch: Dual Blades**
+Thrust at 0-1 Chain, or consumes 2 Chain to draw second sword and enter Dual-Wield Stance (6s, +50% AD). Medium cooldown.
+
+**Ultimate — Starburst Stream**
+16-hit barrage (32 hits in Dual-Wield Stance) with escalating damage. Very long cooldown.
+
+*Ships with one compiled VFX sheet `kirito_vfx` containing 4 effects: slash, circular, switch, starburst.*
 
 ---
 
@@ -121,8 +146,8 @@ This mod currently supports the **English locale only**. You can use it with oth
 
 # Known Issues
 
-- Saitama's Skill 1 and Skill 2 frames are larger than his idle/run frames, so he appears slightly bigger during those two abilities.
-- Balance numbers are still being tuned across all four champions. Feedback is very welcome.
+- Balance numbers are still being tuned across all five champions. Feedback is very welcome.
+- Kirito's ultimate was reduced from 25 to 16 frames to stay under the 2048 sheet limit — still looks smooth.
 
 # Credits
 
@@ -130,7 +155,7 @@ Thanks to the Teamfight Manager 2 modding community for the SDK setup, documenta
 
 # Legalese
 
-This is a free, fan-made mod. I am not affiliated with the creators, publishers or licensors of *One-Punch Man* or *Naruto*, nor with Teamfight Manager 2's developers. Character concepts, names, artwork and audio are the property of their respective owners. All sprites, icons and sound effects are used here for non-commercial, transformative fan purposes.
+This is a free, fan-made mod. I am not affiliated with the creators, publishers or licensors of *One-Punch Man*, *Naruto*, *Sword Art Online* or *Teamfight Manager 2*'s developers. Character concepts, names, artwork and audio are the property of their respective owners. All sprites, icons and sound effects are used here for non-commercial, transformative fan purposes.
 
 If you are a rights holder and would like anything removed, please open an issue and it will be taken down promptly.
 
