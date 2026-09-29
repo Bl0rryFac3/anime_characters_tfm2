@@ -1,6 +1,15 @@
 {
   "en": {
     "description": {
+      "sunwue": {
+        "name": "Sun Wue",
+        "passive": "Nine Revolutions Cultivation. Gains 1 Qi per second while an enemy is nearby, and 10 Qi on a takedown. Each Qi grants <#ff9028ff>1% attack<>, up to 100 Qi. Foundation at 12 Qi: <#ff9028ff>+20% attack<> and +10% move speed. Golden Core at 80 Qi: <#ff9028ff>+40% attack<>. Nascent Soul at 250 Qi: <#ff9028ff>+80% attack<>, +30 defence, crowd-control immunity, and the first time he reaches it he ignores death for 3 seconds.",
+        "attack": "Slashes the target, dealing <#ff9028ff>100% of attack damage<> as physical damage.",
+        "skill": "Sword Qi Slash. Sends an ice-blue crescent that deals <#ff9028ff>140% of attack damage<> as physical damage to the first enemy it hits. Golden Core turns it into a piercing line that deals <#ff9028ff>160% of attack damage<>. Nascent Soul places a circle on the aimed enemy, dealing <#ff9028ff>180% of attack damage<> to that enemy and foes close to them.",
+        "skill2": "Qi Barrier. Crosses his arms and raises a golden-blue hexagonal barrier for 3 seconds, gaining 30 defence, 30 magic resistance, and immunity to crowd control.",
+        "ult": "Myriad Swords Return to One. Jade swords gather overhead and slam down at his feet, dealing <#ff9028ff>300% of attack damage<> as physical damage to nearby enemies and granting <#ff9028ff>30% attack<> for 3 seconds. Nascent Soul raises the slam to <#ff9028ff>600% of attack damage<>.",
+        "ult_selfslam": "Myriad Swords Return to One. Jade swords gather overhead and slam down at his feet, dealing <#ff9028ff>300% of attack damage<> as physical damage to nearby enemies and granting <#ff9028ff>30% attack<> for 3 seconds. Nascent Soul raises the slam to <#ff9028ff>600% of attack damage<>."
+      },
       "minato": {
         "name": "Minato",
         "attack": "Throws a kunai to deal <#ff9028ff>100% of attack damage<> as physical damage.",

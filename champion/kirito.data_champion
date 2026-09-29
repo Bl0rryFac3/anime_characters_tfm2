@@ -48,53 +48,19 @@
       "type": "SwitchByBuff",
       "buff_name": "kirito_chain_2",
       "effect_buff": {
-        "type": "Combine",
-        "effects": [
-          {
-            "type": "Attack",
-            "damage": 0,
-            "attack_ratio": 115,
-            "ap_ratio": 0,
-            "hp_ratio": 0,
-            "target_hp_ratio": 0,
-            "attack_effect_type": "Target"
-          },
-          {
-            "type": "AddCasterBuff",
-            "only_to_enemy": false,
-            "buff_state": {
-              "name": "kirito_chain_2",
-              "duration": {
-                "Time": {
-                  "tick": 240
-                }
-              }
-            }
-          },
-          {
-            "type": "Sfx",
-            "name": "kirito_attack_sfx"
-          }
-        ]
-      },
-      "effect_none": {
         "type": "SwitchByBuff",
-        "buff_name": "kirito_chain_1",
+        "buff_name": "kirito_evolve_2",
         "effect_buff": {
           "type": "Combine",
           "effects": [
             {
               "type": "Attack",
               "damage": 0,
-              "attack_ratio": 108,
+              "attack_ratio": 135,
               "ap_ratio": 0,
               "hp_ratio": 0,
               "target_hp_ratio": 0,
               "attack_effect_type": "Target"
-            },
-            {
-              "type": "RemoveCasterBuff",
-              "name": "kirito_chain_1"
             },
             {
               "type": "AddCasterBuff",
@@ -109,40 +75,322 @@
               }
             },
             {
+              "type": "Native",
+              "effect_ref": "kirito_evolve_tick"
+            },
+            {
               "type": "Sfx",
               "name": "kirito_attack_sfx"
             }
           ]
         },
         "effect_none": {
-          "type": "Combine",
-          "effects": [
-            {
-              "type": "Attack",
-              "damage": 0,
-              "attack_ratio": 100,
-              "ap_ratio": 0,
-              "hp_ratio": 0,
-              "target_hp_ratio": 0,
-              "attack_effect_type": "Target"
-            },
-            {
-              "type": "AddCasterBuff",
-              "only_to_enemy": false,
-              "buff_state": {
-                "name": "kirito_chain_1",
-                "duration": {
-                  "Time": {
-                    "tick": 240
+          "type": "SwitchByBuff",
+          "buff_name": "kirito_evolve_1",
+          "effect_buff": {
+            "type": "Combine",
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 125,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              },
+              {
+                "type": "AddCasterBuff",
+                "only_to_enemy": false,
+                "buff_state": {
+                  "name": "kirito_chain_2",
+                  "duration": {
+                    "Time": {
+                      "tick": 240
+                    }
                   }
                 }
+              },
+              {
+                "type": "Native",
+                "effect_ref": "kirito_evolve_tick"
+              },
+              {
+                "type": "Sfx",
+                "name": "kirito_attack_sfx"
               }
+            ]
+          },
+          "effect_none": {
+            "type": "Combine",
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 115,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              },
+              {
+                "type": "AddCasterBuff",
+                "only_to_enemy": false,
+                "buff_state": {
+                  "name": "kirito_chain_2",
+                  "duration": {
+                    "Time": {
+                      "tick": 240
+                    }
+                  }
+                }
+              },
+              {
+                "type": "Native",
+                "effect_ref": "kirito_evolve_tick"
+              },
+              {
+                "type": "Sfx",
+                "name": "kirito_attack_sfx"
+              }
+            ]
+          }
+        }
+      },
+      "effect_none": {
+        "type": "SwitchByBuff",
+        "buff_name": "kirito_chain_1",
+        "effect_buff": {
+          "type": "SwitchByBuff",
+          "buff_name": "kirito_evolve_2",
+          "effect_buff": {
+            "type": "Combine",
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 128,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              },
+              {
+                "type": "RemoveCasterBuff",
+                "name": "kirito_chain_1"
+              },
+              {
+                "type": "AddCasterBuff",
+                "only_to_enemy": false,
+                "buff_state": {
+                  "name": "kirito_chain_2",
+                  "duration": {
+                    "Time": {
+                      "tick": 240
+                    }
+                  }
+                }
+              },
+              {
+                "type": "Native",
+                "effect_ref": "kirito_evolve_tick"
+              },
+              {
+                "type": "Sfx",
+                "name": "kirito_attack_sfx"
+              }
+            ]
+          },
+          "effect_none": {
+            "type": "SwitchByBuff",
+            "buff_name": "kirito_evolve_1",
+            "effect_buff": {
+              "type": "Combine",
+              "effects": [
+                {
+                  "type": "Attack",
+                  "damage": 0,
+                  "attack_ratio": 118,
+                  "ap_ratio": 0,
+                  "hp_ratio": 0,
+                  "target_hp_ratio": 0,
+                  "attack_effect_type": "Target"
+                },
+                {
+                  "type": "RemoveCasterBuff",
+                  "name": "kirito_chain_1"
+                },
+                {
+                  "type": "AddCasterBuff",
+                  "only_to_enemy": false,
+                  "buff_state": {
+                    "name": "kirito_chain_2",
+                    "duration": {
+                      "Time": {
+                        "tick": 240
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "Native",
+                  "effect_ref": "kirito_evolve_tick"
+                },
+                {
+                  "type": "Sfx",
+                  "name": "kirito_attack_sfx"
+                }
+              ]
             },
-            {
-              "type": "Sfx",
-              "name": "kirito_attack_sfx"
+            "effect_none": {
+              "type": "Combine",
+              "effects": [
+                {
+                  "type": "Attack",
+                  "damage": 0,
+                  "attack_ratio": 108,
+                  "ap_ratio": 0,
+                  "hp_ratio": 0,
+                  "target_hp_ratio": 0,
+                  "attack_effect_type": "Target"
+                },
+                {
+                  "type": "RemoveCasterBuff",
+                  "name": "kirito_chain_1"
+                },
+                {
+                  "type": "AddCasterBuff",
+                  "only_to_enemy": false,
+                  "buff_state": {
+                    "name": "kirito_chain_2",
+                    "duration": {
+                      "Time": {
+                        "tick": 240
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "Native",
+                  "effect_ref": "kirito_evolve_tick"
+                },
+                {
+                  "type": "Sfx",
+                  "name": "kirito_attack_sfx"
+                }
+              ]
             }
-          ]
+          }
+        },
+        "effect_none": {
+          "type": "SwitchByBuff",
+          "buff_name": "kirito_evolve_2",
+          "effect_buff": {
+            "type": "Combine",
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 120,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              },
+              {
+                "type": "AddCasterBuff",
+                "only_to_enemy": false,
+                "buff_state": {
+                  "name": "kirito_chain_1",
+                  "duration": {
+                    "Time": {
+                      "tick": 240
+                    }
+                  }
+                }
+              },
+              {
+                "type": "Native",
+                "effect_ref": "kirito_evolve_tick"
+              },
+              {
+                "type": "Sfx",
+                "name": "kirito_attack_sfx"
+              }
+            ]
+          },
+          "effect_none": {
+            "type": "SwitchByBuff",
+            "buff_name": "kirito_evolve_1",
+            "effect_buff": {
+              "type": "Combine",
+              "effects": [
+                {
+                  "type": "Attack",
+                  "damage": 0,
+                  "attack_ratio": 110,
+                  "ap_ratio": 0,
+                  "hp_ratio": 0,
+                  "target_hp_ratio": 0,
+                  "attack_effect_type": "Target"
+                },
+                {
+                  "type": "AddCasterBuff",
+                  "only_to_enemy": false,
+                  "buff_state": {
+                    "name": "kirito_chain_1",
+                    "duration": {
+                      "Time": {
+                        "tick": 240
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "Native",
+                  "effect_ref": "kirito_evolve_tick"
+                },
+                {
+                  "type": "Sfx",
+                  "name": "kirito_attack_sfx"
+                }
+              ]
+            },
+            "effect_none": {
+              "type": "Combine",
+              "effects": [
+                {
+                  "type": "Attack",
+                  "damage": 0,
+                  "attack_ratio": 100,
+                  "ap_ratio": 0,
+                  "hp_ratio": 0,
+                  "target_hp_ratio": 0,
+                  "attack_effect_type": "Target"
+                },
+                {
+                  "type": "AddCasterBuff",
+                  "only_to_enemy": false,
+                  "buff_state": {
+                    "name": "kirito_chain_1",
+                    "duration": {
+                      "Time": {
+                        "tick": 240
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "Native",
+                  "effect_ref": "kirito_evolve_tick"
+                },
+                {
+                  "type": "Sfx",
+                  "name": "kirito_attack_sfx"
+                }
+              ]
+            }
+          }
         }
       }
     },
@@ -164,50 +412,162 @@
       "type": "SwitchByBuff",
       "buff_name": "kirito_chain_2",
       "effect_buff": {
-        "type": "Combine",
-        "effects": [
-          {
-            "type": "RangeEffect",
-            "shape": {
-              "Circle": {
-                "radius": 30000
+        "type": "SwitchByBuff",
+        "buff_name": "kirito_evolve_2",
+        "effect_buff": {
+          "type": "Combine",
+          "effects": [
+            {
+              "type": "RangeEffect",
+              "shape": {
+                "Circle": {
+                  "radius": 40000
+                }
+              },
+              "target": "EnemyWithoutTower",
+              "apply_type": "AroundCaster",
+              "effects": [
+                {
+                  "type": "Attack",
+                  "damage": 0,
+                  "attack_ratio": 110,
+                  "ap_ratio": 0,
+                  "hp_ratio": 0,
+                  "target_hp_ratio": 0,
+                  "attack_effect_type": "Target"
+                }
+              ]
+            },
+            {
+              "type": "AddCasterBuff",
+              "only_to_enemy": false,
+              "buff_state": {
+                "name": "kirito_chain_2",
+                "duration": {
+                  "Time": {
+                    "tick": 240
+                  }
+                }
               }
             },
-            "target": "Enemy",
-            "apply_type": "AroundCaster",
+            {
+              "type": "Native",
+              "effect_ref": "kirito_evolve_tick"
+            },
+            {
+              "type": "CasterViewEffect",
+              "name": "kirito_circular"
+            },
+            {
+              "type": "Sfx",
+              "name": "kirito_skill_sfx"
+            }
+          ]
+        },
+        "effect_none": {
+          "type": "SwitchByBuff",
+          "buff_name": "kirito_evolve_1",
+          "effect_buff": {
+            "type": "Combine",
             "effects": [
               {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 90,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
+                "type": "RangeEffect",
+                "shape": {
+                  "Circle": {
+                    "radius": 35000
+                  }
+                },
+                "target": "EnemyWithoutTower",
+                "apply_type": "AroundCaster",
+                "effects": [
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 100,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  }
+                ]
+              },
+              {
+                "type": "AddCasterBuff",
+                "only_to_enemy": false,
+                "buff_state": {
+                  "name": "kirito_chain_2",
+                  "duration": {
+                    "Time": {
+                      "tick": 240
+                    }
+                  }
+                }
+              },
+              {
+                "type": "Native",
+                "effect_ref": "kirito_evolve_tick"
+              },
+              {
+                "type": "CasterViewEffect",
+                "name": "kirito_circular"
+              },
+              {
+                "type": "Sfx",
+                "name": "kirito_skill_sfx"
               }
             ]
           },
-          {
-            "type": "AddCasterBuff",
-            "only_to_enemy": false,
-            "buff_state": {
-              "name": "kirito_chain_2",
-              "duration": {
-                "Time": {
-                  "tick": 240
+          "effect_none": {
+            "type": "Combine",
+            "effects": [
+              {
+                "type": "RangeEffect",
+                "shape": {
+                  "Circle": {
+                    "radius": 30000
+                  }
+                },
+                "target": "EnemyWithoutTower",
+                "apply_type": "AroundCaster",
+                "effects": [
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 90,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  }
+                ]
+              },
+              {
+                "type": "AddCasterBuff",
+                "only_to_enemy": false,
+                "buff_state": {
+                  "name": "kirito_chain_2",
+                  "duration": {
+                    "Time": {
+                      "tick": 240
+                    }
+                  }
                 }
+              },
+              {
+                "type": "Native",
+                "effect_ref": "kirito_evolve_tick"
+              },
+              {
+                "type": "CasterViewEffect",
+                "name": "kirito_circular"
+              },
+              {
+                "type": "Sfx",
+                "name": "kirito_skill_sfx"
               }
-            }
-          },
-          {
-            "type": "CasterViewEffect",
-            "name": "kirito_circular"
-          },
-          {
-            "type": "Sfx",
-            "name": "kirito_skill_sfx"
+            ]
           }
-        ]
+        }
       },
       "effect_none": {
         "type": "SwitchByBuff",
@@ -266,65 +626,154 @@
               }
             },
             {
+              "type": "Native",
+              "effect_ref": "kirito_evolve_tick"
+            },
+            {
               "type": "Sfx",
               "name": "kirito_skill_sfx"
             }
           ]
         },
         "effect_none": {
-          "type": "Combine",
-          "effects": [
-            {
-              "type": "Delayed",
-              "tick": 0,
+          "type": "SwitchByBuff",
+          "buff_name": "kirito_evolve_2",
+          "effect_buff": {
+            "type": "Combine",
+            "effects": [
+              {
+                "type": "RangeEffect",
+                "shape": {
+                  "Circle": {
+                    "radius": 30000
+                  }
+                },
+                "target": "EnemyWithoutTower",
+                "apply_type": "AroundCaster",
+                "effects": [
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 90,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  }
+                ]
+              },
+              {
+                "type": "Native",
+                "effect_ref": "kirito_evolve_tick"
+              },
+              {
+                "type": "CasterViewEffect",
+                "name": "kirito_circular"
+              },
+              {
+                "type": "Sfx",
+                "name": "kirito_skill_sfx"
+              }
+            ]
+          },
+          "effect_none": {
+            "type": "SwitchByBuff",
+            "buff_name": "kirito_evolve_1",
+            "effect_buff": {
+              "type": "Combine",
               "effects": [
                 {
-                  "type": "Attack",
-                  "damage": 0,
-                  "attack_ratio": 55,
-                  "ap_ratio": 0,
-                  "hp_ratio": 0,
-                  "target_hp_ratio": 0,
-                  "attack_effect_type": "Target"
+                  "type": "Delayed",
+                  "tick": 0,
+                  "effects": [
+                    {
+                      "type": "Attack",
+                      "damage": 0,
+                      "attack_ratio": 85,
+                      "ap_ratio": 0,
+                      "hp_ratio": 0,
+                      "target_hp_ratio": 0,
+                      "attack_effect_type": "Target"
+                    },
+                    {
+                      "type": "CasterViewEffect",
+                      "name": "kirito_slash"
+                    }
+                  ]
                 },
                 {
-                  "type": "CasterViewEffect",
-                  "name": "kirito_slash"
+                  "type": "Delayed",
+                  "tick": 6,
+                  "effects": [
+                    {
+                      "type": "Attack",
+                      "damage": 0,
+                      "attack_ratio": 85,
+                      "ap_ratio": 0,
+                      "hp_ratio": 0,
+                      "target_hp_ratio": 0,
+                      "attack_effect_type": "Target"
+                    }
+                  ]
+                },
+                {
+                  "type": "Native",
+                  "effect_ref": "kirito_evolve_tick"
+                },
+                {
+                  "type": "Sfx",
+                  "name": "kirito_skill_sfx"
                 }
               ]
             },
-            {
-              "type": "Delayed",
-              "tick": 6,
+            "effect_none": {
+              "type": "Combine",
               "effects": [
                 {
-                  "type": "Attack",
-                  "damage": 0,
-                  "attack_ratio": 55,
-                  "ap_ratio": 0,
-                  "hp_ratio": 0,
-                  "target_hp_ratio": 0,
-                  "attack_effect_type": "Target"
+                  "type": "Delayed",
+                  "tick": 0,
+                  "effects": [
+                    {
+                      "type": "Attack",
+                      "damage": 0,
+                      "attack_ratio": 75,
+                      "ap_ratio": 0,
+                      "hp_ratio": 0,
+                      "target_hp_ratio": 0,
+                      "attack_effect_type": "Target"
+                    },
+                    {
+                      "type": "CasterViewEffect",
+                      "name": "kirito_slash"
+                    }
+                  ]
+                },
+                {
+                  "type": "Delayed",
+                  "tick": 6,
+                  "effects": [
+                    {
+                      "type": "Attack",
+                      "damage": 0,
+                      "attack_ratio": 75,
+                      "ap_ratio": 0,
+                      "hp_ratio": 0,
+                      "target_hp_ratio": 0,
+                      "attack_effect_type": "Target"
+                    }
+                  ]
+                },
+                {
+                  "type": "Native",
+                  "effect_ref": "kirito_evolve_tick"
+                },
+                {
+                  "type": "Sfx",
+                  "name": "kirito_skill_sfx"
                 }
               ]
-            },
-            {
-              "type": "AddCasterBuff",
-              "only_to_enemy": false,
-              "buff_state": {
-                "name": "kirito_chain_1",
-                "duration": {
-                  "Time": {
-                    "tick": 240
-                  }
-                }
-              }
-            },
-            {
-              "type": "Sfx",
-              "name": "kirito_skill_sfx"
             }
-          ]
+          }
         }
       }
     },
@@ -346,66 +795,230 @@
       "type": "SwitchByBuff",
       "buff_name": "kirito_chain_2",
       "effect_buff": {
-        "type": "Combine",
-        "effects": [
-          {
-            "type": "Attack",
-            "damage": 0,
-            "attack_ratio": 150,
-            "ap_ratio": 0,
-            "hp_ratio": 0,
-            "target_hp_ratio": 0,
-            "attack_effect_type": "Target"
-          },
-          {
-            "type": "RemoveCasterBuff",
-            "name": "kirito_chain_2"
-          },
-          {
-            "type": "AddCasterBuff",
-            "only_to_enemy": false,
-            "buff_state": {
-              "name": "kirito_dual_blades",
-              "duration": {
-                "Time": {
-                  "tick": 360
+        "type": "SwitchByBuff",
+        "buff_name": "kirito_evolve_2",
+        "effect_buff": {
+          "type": "Combine",
+          "effects": [
+            {
+              "type": "Attack",
+              "damage": 0,
+              "attack_ratio": 170,
+              "ap_ratio": 0,
+              "hp_ratio": 0,
+              "target_hp_ratio": 0,
+              "attack_effect_type": "Target"
+            },
+            {
+              "type": "RemoveCasterBuff",
+              "name": "kirito_chain_2"
+            },
+            {
+              "type": "AddCasterBuff",
+              "only_to_enemy": false,
+              "buff_state": {
+                "name": "kirito_dual_blades",
+                "duration": {
+                  "Time": {
+                    "tick": 360
+                  }
+                },
+                "attack_speed_mult": 40,
+                "attack_mult": 25
+              }
+            },
+            {
+              "type": "Native",
+              "effect_ref": "kirito_evolve_tick"
+            },
+            {
+              "type": "CasterViewEffect",
+              "name": "kirito_switch"
+            },
+            {
+              "type": "Sfx",
+              "name": "kirito_skill2_sfx"
+            }
+          ]
+        },
+        "effect_none": {
+          "type": "SwitchByBuff",
+          "buff_name": "kirito_evolve_1",
+          "effect_buff": {
+            "type": "Combine",
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 160,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              },
+              {
+                "type": "RemoveCasterBuff",
+                "name": "kirito_chain_2"
+              },
+              {
+                "type": "AddCasterBuff",
+                "only_to_enemy": false,
+                "buff_state": {
+                  "name": "kirito_dual_blades",
+                  "duration": {
+                    "Time": {
+                      "tick": 360
+                    }
+                  },
+                  "attack_speed_mult": 40,
+                  "attack_mult": 25
                 }
               },
-              "attack_speed_mult": 40,
-              "attack_mult": 25
-            }
+              {
+                "type": "Native",
+                "effect_ref": "kirito_evolve_tick"
+              },
+              {
+                "type": "CasterViewEffect",
+                "name": "kirito_switch"
+              },
+              {
+                "type": "Sfx",
+                "name": "kirito_skill2_sfx"
+              }
+            ]
           },
-          {
-            "type": "CasterViewEffect",
-            "name": "kirito_switch"
-          },
-          {
-            "type": "Sfx",
-            "name": "kirito_skill2_sfx"
+          "effect_none": {
+            "type": "Combine",
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 150,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              },
+              {
+                "type": "RemoveCasterBuff",
+                "name": "kirito_chain_2"
+              },
+              {
+                "type": "AddCasterBuff",
+                "only_to_enemy": false,
+                "buff_state": {
+                  "name": "kirito_dual_blades",
+                  "duration": {
+                    "Time": {
+                      "tick": 360
+                    }
+                  },
+                  "attack_speed_mult": 40,
+                  "attack_mult": 25
+                }
+              },
+              {
+                "type": "Native",
+                "effect_ref": "kirito_evolve_tick"
+              },
+              {
+                "type": "CasterViewEffect",
+                "name": "kirito_switch"
+              },
+              {
+                "type": "Sfx",
+                "name": "kirito_skill2_sfx"
+              }
+            ]
           }
-        ]
+        }
       },
       "effect_none": {
-        "type": "Combine",
-        "effects": [
-          {
-            "type": "Attack",
-            "damage": 0,
-            "attack_ratio": 90,
-            "ap_ratio": 0,
-            "hp_ratio": 0,
-            "target_hp_ratio": 0,
-            "attack_effect_type": "Target"
+        "type": "SwitchByBuff",
+        "buff_name": "kirito_evolve_2",
+        "effect_buff": {
+          "type": "Combine",
+          "effects": [
+            {
+              "type": "Attack",
+              "damage": 0,
+              "attack_ratio": 110,
+              "ap_ratio": 0,
+              "hp_ratio": 0,
+              "target_hp_ratio": 0,
+              "attack_effect_type": "Target"
+            },
+            {
+              "type": "Native",
+              "effect_ref": "kirito_evolve_tick"
+            },
+            {
+              "type": "CasterViewEffect",
+              "name": "kirito_switch"
+            },
+            {
+              "type": "Sfx",
+              "name": "kirito_skill2_sfx"
+            }
+          ]
+        },
+        "effect_none": {
+          "type": "SwitchByBuff",
+          "buff_name": "kirito_evolve_1",
+          "effect_buff": {
+            "type": "Combine",
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 100,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              },
+              {
+                "type": "Native",
+                "effect_ref": "kirito_evolve_tick"
+              },
+              {
+                "type": "CasterViewEffect",
+                "name": "kirito_switch"
+              },
+              {
+                "type": "Sfx",
+                "name": "kirito_skill2_sfx"
+              }
+            ]
           },
-          {
-            "type": "CasterViewEffect",
-            "name": "kirito_switch"
-          },
-          {
-            "type": "Sfx",
-            "name": "kirito_skill2_sfx"
+          "effect_none": {
+            "type": "Combine",
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 90,
+                "ap_ratio": 0,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
+              },
+              {
+                "type": "Native",
+                "effect_ref": "kirito_evolve_tick"
+              },
+              {
+                "type": "CasterViewEffect",
+                "name": "kirito_switch"
+              },
+              {
+                "type": "Sfx",
+                "name": "kirito_skill2_sfx"
+              }
+            ]
           }
-        ]
+        }
       }
     },
     "growth_range": 0,
@@ -423,658 +1036,1005 @@
     "description": "#asset/base/text/champion?description.kirito.ult",
     "duration": 60,
     "effect": {
-      "type": "SwitchByBuff",
-      "buff_name": "kirito_dual_blades",
-      "effect_buff": {
-        "type": "Combine",
-        "effects": [
-          {
-            "type": "Delayed",
-            "tick": 0,
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Combine",
+          "effects": [
+            {
+              "type": "MoveToTarget",
+              "speed": 10000,
+              "range": 30000
+            },
+            {
+              "type": "AddBuff",
+              "buff_state": {
+                "name": "kirito_starburst_bind",
+                "duration": {
+                  "Time": {
+                    "tick": 60
+                  }
+                },
+                "move_speed_mult": -100
+              }
+            },
+            {
+              "type": "CasterViewEffect",
+              "name": "kirito_starburst"
+            },
+            {
+              "type": "Sfx",
+              "name": "kirito_ult_sfx"
+            }
+          ]
+        },
+        {
+          "type": "SwitchByBuff",
+          "buff_name": "kirito_dual_blades",
+          "effect_buff": {
+            "type": "Combine",
             "effects": [
               {
-                "type": "CasterViewEffect",
-                "name": "kirito_starburst"
+                "type": "Delayed",
+                "tick": 0,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_starburst"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 8,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 8,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
               },
               {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 8,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
+                "type": "Delayed",
+                "tick": 3,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_slash"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 10,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 10,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
               },
               {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 8,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
+                "type": "Delayed",
+                "tick": 6,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_starburst"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 12,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 12,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
+              },
+              {
+                "type": "Delayed",
+                "tick": 9,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_slash"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 14,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 14,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
+              },
+              {
+                "type": "Delayed",
+                "tick": 12,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_starburst"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 16,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 16,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
+              },
+              {
+                "type": "Delayed",
+                "tick": 15,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_slash"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 18,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 18,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
+              },
+              {
+                "type": "Delayed",
+                "tick": 18,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_starburst"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 20,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 20,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
+              },
+              {
+                "type": "Delayed",
+                "tick": 21,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_slash"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 22,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 22,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
+              },
+              {
+                "type": "Delayed",
+                "tick": 24,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_starburst"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 24,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 24,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
+              },
+              {
+                "type": "Delayed",
+                "tick": 27,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_slash"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 26,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 26,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
+              },
+              {
+                "type": "Delayed",
+                "tick": 30,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_starburst"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 28,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 28,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
+              },
+              {
+                "type": "Delayed",
+                "tick": 33,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_slash"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 30,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 30,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
+              },
+              {
+                "type": "Delayed",
+                "tick": 36,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_starburst"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 32,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 32,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
+              },
+              {
+                "type": "Delayed",
+                "tick": 39,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_slash"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 34,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 34,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
+              },
+              {
+                "type": "Delayed",
+                "tick": 42,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_starburst"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 36,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 36,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
+              },
+              {
+                "type": "Delayed",
+                "tick": 45,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_slash"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 38,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 38,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
+              },
+              {
+                "type": "Sfx",
+                "name": "kirito_ult_sfx"
               }
             ]
           },
-          {
-            "type": "Delayed",
-            "tick": 3,
+          "effect_none": {
+            "type": "Combine",
             "effects": [
               {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 10,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
+                "type": "Delayed",
+                "tick": 0,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_starburst"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 8,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
               },
               {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 10,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 6,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 12,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
+                "type": "Delayed",
+                "tick": 3,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_slash"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 10,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
               },
               {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 12,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 9,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 14,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
+                "type": "Delayed",
+                "tick": 6,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_starburst"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 12,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
               },
               {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 14,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 12,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 16,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
+                "type": "Delayed",
+                "tick": 9,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_slash"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 14,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
               },
               {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 16,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 15,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 18,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
+                "type": "Delayed",
+                "tick": 12,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_starburst"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 16,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
               },
               {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 18,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 18,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 20,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
+                "type": "Delayed",
+                "tick": 15,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_slash"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 18,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
               },
               {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 20,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 21,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 22,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
+                "type": "Delayed",
+                "tick": 18,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_starburst"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 20,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
               },
               {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 22,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 24,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 24,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
+                "type": "Delayed",
+                "tick": 21,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_slash"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 22,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
               },
               {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 24,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 27,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 26,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
+                "type": "Delayed",
+                "tick": 24,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_starburst"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 24,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
               },
               {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 26,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 30,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 28,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
+                "type": "Delayed",
+                "tick": 27,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_slash"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 26,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
               },
               {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 28,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 33,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 30,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
+                "type": "Delayed",
+                "tick": 30,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_starburst"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 28,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
               },
               {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 30,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 36,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 32,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
+                "type": "Delayed",
+                "tick": 33,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_slash"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 30,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
               },
               {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 32,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 39,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 34,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
+                "type": "Delayed",
+                "tick": 36,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_starburst"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 32,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
               },
               {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 34,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 42,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 36,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
+                "type": "Delayed",
+                "tick": 39,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_slash"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 34,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
               },
               {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 36,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 45,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 38,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
+                "type": "Delayed",
+                "tick": 42,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_starburst"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 36,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
               },
               {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 38,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
+                "type": "Delayed",
+                "tick": 45,
+                "effects": [
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_slash"
+                  },
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 38,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "kirito_attack_sfx"
+                  }
+                ]
+              },
+              {
+                "type": "Sfx",
+                "name": "kirito_ult_sfx"
               }
             ]
-          },
-          {
-            "type": "Sfx",
-            "name": "kirito_ult_sfx"
           }
-        ]
-      },
-      "effect_none": {
-        "type": "Combine",
-        "effects": [
-          {
-            "type": "Delayed",
-            "tick": 0,
+        },
+        {
+          "type": "SwitchByBuff",
+          "buff_name": "kirito_evolve_2",
+          "effect_buff": {
+            "type": "Combine",
             "effects": [
               {
-                "type": "CasterViewEffect",
-                "name": "kirito_starburst"
-              },
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 8,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
+                "type": "Delayed",
+                "tick": 48,
+                "effects": [
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 80,
+                    "ap_ratio": 0,
+                    "hp_ratio": 0,
+                    "target_hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  },
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "kirito_starburst"
+                  }
+                ]
               }
             ]
           },
-          {
-            "type": "Delayed",
-            "tick": 3,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 10,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 6,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 12,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 9,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 14,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 12,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 16,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 15,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 18,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 18,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 20,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 21,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 22,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 24,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 24,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 27,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 26,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 30,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 28,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 33,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 30,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 36,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 32,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 39,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 34,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 42,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 36,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Delayed",
-            "tick": 45,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 38,
-                "ap_ratio": 0,
-                "hp_ratio": 0,
-                "target_hp_ratio": 0,
-                "attack_effect_type": "Target"
-              }
-            ]
-          },
-          {
-            "type": "Sfx",
-            "name": "kirito_ult_sfx"
+          "effect_none": {
+            "type": "SwitchByBuff",
+            "buff_name": "kirito_evolve_1",
+            "effect_buff": {
+              "type": "Combine",
+              "effects": [
+                {
+                  "type": "Delayed",
+                  "tick": 48,
+                  "effects": [
+                    {
+                      "type": "Attack",
+                      "damage": 0,
+                      "attack_ratio": 50,
+                      "ap_ratio": 0,
+                      "hp_ratio": 0,
+                      "target_hp_ratio": 0,
+                      "attack_effect_type": "Target"
+                    },
+                    {
+                      "type": "CasterViewEffect",
+                      "name": "kirito_circular"
+                    }
+                  ]
+                }
+              ]
+            },
+            "effect_none": {
+              "type": "Combine",
+              "effects": []
+            }
           }
-        ]
-      }
+        },
+        {
+          "type": "Native",
+          "effect_ref": "kirito_evolve_tick"
+        }
+      ]
     },
     "growth_range": 0,
     "range": 20000,

@@ -1,0 +1,134 @@
+{
+  "id": "sunwue",
+  "name": "Sun Wue",
+  "category": "Range",
+  "tags": [
+    "AD",
+    "Melee",
+    "CC"
+  ],
+  "stat": {
+    "attack": 105,
+    "magic_power": 0,
+    "hp": 1500,
+    "defence": 42,
+    "magic_resistance": 34,
+    "move_speed": 1100,
+    "hp_regen": 4,
+    "stack": 0,
+    "crit_chance": 10
+  },
+  "growth": {
+    "attack": 18,
+    "magic_power": 0,
+    "hp": 120,
+    "defence": 5,
+    "magic_resistance": 4,
+    "move_speed": 4,
+    "hp_regen": 1,
+    "stack": 0,
+    "crit_chance": 0
+  },
+  "attack": {
+    "action_name": "attack",
+    "attack_type": "BaseAttack",
+    "can_use_with_move": false,
+    "cancelable": false,
+    "casting_target": "Enemy",
+    "casting_type": "Targeting",
+    "cooltime": 50,
+    "description": "#asset/base/text/champion?description.sunwue.attack",
+    "duration": 20,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Attack",
+          "amount": 0,
+          "attack_ratio": 100,
+          "ap_ratio": 0,
+          "hp_ratio": 0,
+          "target_hp_ratio": 0
+        }
+      ]
+    },
+    "growth_range": 0,
+    "range": 15000,
+    "start_timing": 6
+  },
+  "skill": {
+    "action_name": "skill",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "cancelable": false,
+    "casting_target": "Enemy",
+    "casting_type": "Targeting",
+    "cooltime": 80,
+    "description": "#asset/base/text/champion?description.sunwue.skill",
+    "duration": 24,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Native",
+          "effect_ref": "sunwue_sword_qi"
+        }
+      ]
+    },
+    "growth_range": 0,
+    "range": 65000,
+    "start_timing": 5
+  },
+  "skill2": {
+    "action_name": "skill2",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "cancelable": false,
+    "casting_target": "Enemy",
+    "casting_type": "None",
+    "cooltime": 200,
+    "description": "#asset/base/text/champion?description.sunwue.skill2",
+    "duration": 30,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Native",
+          "effect_ref": "sunwue_qi_barrier"
+        }
+      ]
+    },
+    "growth_range": 0,
+    "range": 9000,
+    "start_timing": 6
+  },
+  "ult": {
+    "action_name": "ult",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "cancelable": false,
+    "casting_target": "Enemy",
+    "casting_type": "None",
+    "cooltime": 1200,
+    "description": "#asset/base/text/champion?description.sunwue.ult_selfslam",
+    "duration": 40,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Native",
+          "effect_ref": "sunwue_myriad_slam_self"
+        }
+      ]
+    },
+    "growth_range": 0,
+    "range": 45000,
+    "start_timing": 8
+  },
+  "skill_icons": [
+    "asset/my_mod/icons/sunwue_skill",
+    "asset/my_mod/icons/sunwue_skill2",
+    "asset/my_mod/icons/sunwue_ult"
+  ],
+  "sprite": "sunwue"
+}

@@ -1,5 +1,7 @@
 use mod_api_stable::*;
 
+mod kirito;
+
 #[derive(Debug)]
 struct ForgeSpawnAttackGate;
 
@@ -107,7 +109,6 @@ impl StableEffectType for SaitamaComboTick {
     }
 }
 
-/// Shared: normal-mode consecutive punches, scaled by combo tier.
 fn saitama_flurry(sim: &mut StableSim<'_>, caster_id: usize, target_id: usize, hits: u32, base_ratio: i64) {
     let tier = crate::state::counter_value(sim, caster_id, COMBO_COUNTER).min(20);
     let Some(atk) = sim.get_entity(caster_id).map(|e| e.stat().attack) else { return };
@@ -118,11 +119,10 @@ fn saitama_flurry(sim: &mut StableSim<'_>, caster_id: usize, target_id: usize, h
     }
 }
 
-/// Shared: single-target serious-mode punch, scaled by combo tier + serious bonus.
 fn saitama_serious_punch(sim: &mut StableSim<'_>, caster_id: usize, target_id: usize, base_ratio: i64) {
     let tier = crate::state::counter_value(sim, caster_id, COMBO_COUNTER).min(20);
     let Some(atk) = sim.get_entity(caster_id).map(|e| e.stat().attack) else { return };
-    let ratio = base_ratio + tier * 100 + 800; // one-punch tier: lethal to most champions even at 0 stacks
+    let ratio = base_ratio + tier * 100 + 800;
     let amount = (atk as i64 * ratio / 100).max(0) as usize;
     sim.deal_damage_typed(caster_id, target_id, amount, DamageTypeV1::Ad, AttackTypeV1::Skill);
     sim.play_view_effect("saitama_serious_punch_impact", caster_id, &InputTargetV1::target(target_id), 0, 0, 30);
@@ -135,7 +135,7 @@ impl StableEffectType for SaitamaSkillPunch {
         if crate::helpers::has_buff(sim, caster_id, SERIOUS_BUFF) {
             saitama_serious_punch(sim, caster_id, input.target_id, 80);
         } else {
-            saitama_flurry(sim, caster_id, input.target_id, 3, 90); // 3 one-hand hits
+            saitama_flurry(sim, caster_id, input.target_id, 3, 90);
         }
     }
 }
@@ -145,7 +145,6 @@ struct SaitamaSkillPunch2;
 impl StableEffectType for SaitamaSkillPunch2 {
     fn apply(&self, sim: &mut StableSim<'_>, _rng_seed: u64, caster_id: usize, input: InputTargetV1) {
         if crate::helpers::has_buff(sim, caster_id, SERIOUS_BUFF) {
-            // Serious mode: table-flip projectile that stuns on hit.
             let Some((cx, cy, team)) = sim.get_entity(caster_id).map(|e| (e.pos().0, e.pos().1, e.team())) else { return };
             let spec = ProjectileSpawnV1 {
                 caster_id,
@@ -165,13 +164,11 @@ impl StableEffectType for SaitamaSkillPunch2 {
             };
             sim.spawn_projectile("saitama_table_flip", "saitama_table_flip_hit", &spec);
         } else {
-            saitama_flurry(sim, caster_id, input.target_id, 2, 100); // 2 two-hand hits
+            saitama_flurry(sim, caster_id, input.target_id, 2, 100);
         }
     }
 }
 
-/// Fires when the table-flip projectile connects — apply the stun here.
-/// Referenced as the projectile's `effect_name` (2nd spawn_projectile arg).
 #[derive(Debug)]
 struct SaitamaTableFlipHit;
 impl StableEffectType for SaitamaTableFlipHit {
@@ -183,7 +180,7 @@ impl StableEffectType for SaitamaTableFlipHit {
 
         let cc = CcV1 {
             kind: CcKindV1::Stun.code(),
-            tick: 60, // ~1s, tune once confirmed against real tick rate
+            tick: 60,
             dx: 0, dy: 0, speed: 0,
             target: 0,
             name_buf: [0u8; BUFF_NAME_CAP],
@@ -193,18 +190,11 @@ impl StableEffectType for SaitamaTableFlipHit {
     }
 }
 
-/// Ult: first cast activates Serious Mode (no refresh if recast while active).
-/// Second cast while already serious = Death Punch, and ends Serious Mode early.
 #[derive(Debug)]
 struct SaitamaSeriousMode;
 impl StableEffectType for SaitamaSeriousMode {
     fn apply(&self, sim: &mut StableSim<'_>, _rng_seed: u64, caster_id: usize, input: InputTargetV1) {
         if crate::helpers::has_buff(sim, caster_id, SERIOUS_BUFF) {
-            // Death Punch: capture the target's position BEFORE dealing
-            // damage — a hit this large can be lethal, and if the target
-            // entity is removed same-tick, an entity-targeted view effect
-            // has nothing left to resolve against and silently fails to
-            // render. Position-based targeting avoids that entirely.
             let target_pos = sim.get_entity(input.target_id).map(|e| e.pos());
             let tier = crate::state::counter_value(sim, caster_id, COMBO_COUNTER).min(20);
             let Some(atk) = sim.get_entity(caster_id).map(|e| e.stat().attack) else { return };
@@ -215,23 +205,8 @@ impl StableEffectType for SaitamaSeriousMode {
             }
             crate::state::remove_buff(sim, caster_id, SERIOUS_BUFF);
         } else {
-            // Activate: timed buff, no-refresh (this branch only runs while
-            // the buff is absent — recasting mid-duration always hits the
-            // Death Punch branch above instead).
-            //
-            // Without a cooldown cut here, Death Punch is structurally
-            // unreachable: Serious Mode lasts 300 ticks but Ult's own
-            // cooldown is 900 — the buff always expires 600 ticks before
-            // Ult could ever be recast. Slashing the cooldown while this
-            // buff is up is what actually makes a same-window recast
-            // possible at all.
-            let mut buff = BuffV1::timed(SERIOUS_BUFF, 1000); // real balance value — widened from original 300, well short of the 1800 testing value
-            buff.attack_mult = 150; // assumed +150%, verify in-game
-            // NOTE: -80 was tried first and appears to have over-corrected —
-            // Ult's cooldown collapsed low enough that the AI chain-cast it
-            // repeatedly (activate -> Death Punch -> activate -> ...) instead
-            // of ever landing a punch. -35 is a much more conservative retry;
-            // still unconfirmed exact units, tune further from here.
+            let mut buff = BuffV1::timed(SERIOUS_BUFF, 1000);
+            buff.attack_mult = 150;
             buff.ult_cooldown_mult = -35;
             crate::state::add_buff(sim, caster_id, &buff, true, false, 1, true);
         }
@@ -259,5 +234,15 @@ pub fn register(reg: &mut StableMod) {
     reg.add_native_effect("paragon_godless", crate::paragon::ParagonGodlessEffect);
     reg.add_native_passive("paragon_passive", crate::paragon_passive::ParagonPassive::default());
 
-    
+    // Kirito
+    reg.add_native_effect("kirito_evolve_tick", crate::kirito::KiritoEvolveTick);
+
+    // Sunwue
+    reg.add_native_effect("sunwue_sword_qi", crate::sunwue::SunWueSwordQiEffect);
+    reg.add_native_effect("sunwue_sword_qi_hit", crate::sunwue::SunWueSwordQiHit);
+    reg.add_native_effect("sunwue_sword_qi_line_hit", crate::sunwue::SunWueSwordQiLineHit);
+    reg.add_native_effect("sunwue_qi_barrier", crate::sunwue::SunWueBarrierEffect);
+    reg.add_native_effect("sunwue_myriad_slam_self", crate::sunwue::SunWueMyriadSlamSelf);
+    reg.add_native_passive("sunwue_cultivation", crate::sunwue::SunWuePassive::default());
+    reg.add_champion(crate::sunwue::SunWue);
 }

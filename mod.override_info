@@ -214,5 +214,85 @@
   "asset/base/aseprite_resources/fx/kirito_vfx#anim": {
     "remapping": "asset/my_mod/fx/kirito_vfx#anim",
     "type": "override"
+  },
+  "asset/base/aseprite_resources/champions/sunwue#sheet": {
+    "remapping": "asset/my_mod/champions/sunwue#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/champions/sunwue#anim": {
+    "remapping": "asset/my_mod/champions/sunwue#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/fx/sunwue_sword_qi#sheet": {
+    "remapping": "asset/my_mod/fx/sunwue_sword_qi#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/fx/sunwue_sword_qi#anim": {
+    "remapping": "asset/my_mod/fx/sunwue_sword_qi#anim",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sunwue_attack": {
+    "remapping": "asset/my_mod/sound/sfx/sunwue_attack",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sunwue_attack_clip": {
+    "remapping": "asset/my_mod/sound/sfx/sunwue_attack_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sunwue_skill": {
+    "remapping": "asset/my_mod/sound/sfx/sunwue_skill",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sunwue_skill_clip": {
+    "remapping": "asset/my_mod/sound/sfx/sunwue_skill_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sunwue_skill_line": {
+    "remapping": "asset/my_mod/sound/sfx/sunwue_skill_line",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sunwue_skill_line_clip": {
+    "remapping": "asset/my_mod/sound/sfx/sunwue_skill_line_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sunwue_skill_circle": {
+    "remapping": "asset/my_mod/sound/sfx/sunwue_skill_circle",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sunwue_skill_circle_clip": {
+    "remapping": "asset/my_mod/sound/sfx/sunwue_skill_circle_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sunwue_skill2": {
+    "remapping": "asset/my_mod/sound/sfx/sunwue_skill2",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sunwue_skill2_clip": {
+    "remapping": "asset/my_mod/sound/sfx/sunwue_skill2_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sunwue_ult": {
+    "remapping": "asset/my_mod/sound/sfx/sunwue_ult",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sunwue_ult_clip": {
+    "remapping": "asset/my_mod/sound/sfx/sunwue_ult_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sunwue_realm": {
+    "remapping": "asset/my_mod/sound/sfx/sunwue_realm",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sunwue_realm_clip": {
+    "remapping": "asset/my_mod/sound/sfx/sunwue_realm_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sunwue_undying": {
+    "remapping": "asset/my_mod/sound/sfx/sunwue_undying",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sunwue_undying_clip": {
+    "remapping": "asset/my_mod/sound/sfx/sunwue_undying_clip",
+    "type": "override"
   }
 }

@@ -1,0 +1,75 @@
+{
+  "view_effects": [
+    {
+      "type": "Animation",
+      "name": "sunwue_sword_qi_circle",
+      "anim": "asset/my_mod/fx/sunwue_sword_qi_circle",
+      "tag": "sunwue_sword_qi_circle",
+      "z": 2,
+      "is_follow": false
+    }
+  ],
+  "view_projectiles": [
+    {
+      "type": "Animated",
+      "name": "sunwue_sword_qi",
+      "anim": "asset/my_mod/fx/sunwue_qi_right",
+      "tag": "fly",
+      "z": 1,
+      "repeat": true
+    },
+    {
+      "type": "Animated",
+      "name": "sunwue_sword_qi_left",
+      "anim": "asset/my_mod/fx/sunwue_qi_left",
+      "tag": "fly",
+      "z": 1,
+      "repeat": true
+    },
+    {
+      "type": "Animated",
+      "name": "sunwue_sword_qi_line",
+      "anim": "asset/my_mod/fx/sunwue_line_right",
+      "tag": "fly",
+      "z": 1,
+      "repeat": true
+    },
+    {
+      "type": "Animated",
+      "name": "sunwue_sword_qi_line_left",
+      "anim": "asset/my_mod/fx/sunwue_line_left",
+      "tag": "fly",
+      "z": 1,
+      "repeat": true
+    }
+  ],
+  "view_buffs": [
+    {
+      "type": "ThreePhase",
+      "name": "sunwue_foundation",
+      "anim": "asset/my_mod/fx/sunwue_foundation_aura",
+      "pre_tag": "pre",
+      "loop_tag": "loop",
+      "remove_tag": "remove",
+      "z": -1
+    },
+    {
+      "type": "ThreePhase",
+      "name": "sunwue_golden_core",
+      "anim": "asset/my_mod/fx/sunwue_golden_aura",
+      "pre_tag": "pre",
+      "loop_tag": "loop",
+      "remove_tag": "remove",
+      "z": -1
+    },
+    {
+      "type": "ThreePhase",
+      "name": "sunwue_nascent_soul",
+      "anim": "asset/my_mod/fx/sunwue_nascent_aura",
+      "pre_tag": "pre",
+      "loop_tag": "loop",
+      "remove_tag": "remove",
+      "z": -1
+    }
+  ]
+}

@@ -1,0 +1,3239 @@
+﻿TFM2 my_mod src bundle
+Source: C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\mods\my_mod\src
+Generated: 2026-09-24 06:26:12
+File count: 13
+
+INDEX
+- buff_visuals.rs (1035 bytes)
+- driver.rs (2071 bytes)
+- extension.rs (991 bytes)
+- helpers.rs (23154 bytes)
+- kirito.rs (1401 bytes)
+- lib.rs (509 bytes)
+- logger.rs (560 bytes)
+- native_effects/kirito.rs (1401 bytes)
+- native_effects/mod.rs (10849 bytes)
+- paragon.rs (10852 bytes)
+- paragon_passive.rs (2142 bytes)
+- state.rs (50044 bytes)
+- sunwue.rs (15877 bytes)
+
+
+================================================================================
+FILE: buff_visuals.rs
+FULL: C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\mods\my_mod\src\buff_visuals.rs
+BYTES: 1035
+================================================================================
+use mod_api_stable::*;
+
+#[derive(Clone, Copy)]
+pub struct Frame {
+    pub duration_ticks: usize,
+    pub uv: (f32, f32, f32, f32),
+}
+
+pub struct Binding {
+    pub name: &'static str,
+    pub texture: &'static str,
+    pub z: i32,
+    pub frames: &'static [Frame],
+}
+
+
+static BINDINGS: &[Binding] = &[
+];
+
+pub fn binding(name: &str) -> Option<&'static Binding> {
+    BINDINGS.iter().find(|binding| binding.name == name)
+}
+
+pub fn binding_exists(name: &str) -> bool {
+    binding(name).is_some()
+}
+
+pub fn frame_for(binding: &Binding, elapsed_ticks: usize) -> Option<Frame> {
+    if binding.frames.is_empty() {
+        return None;
+    }
+    let total = binding.frames.iter().map(|frame| frame.duration_ticks.max(1)).sum::<usize>().max(1);
+    let mut cursor = elapsed_ticks % total;
+    for frame in binding.frames {
+        let duration = frame.duration_ticks.max(1);
+        if cursor < duration {
+            return Some(*frame);
+        }
+        cursor = cursor.saturating_sub(duration);
+    }
+    binding.frames.last().copied()
+}
+================================================================================
+END FILE: buff_visuals.rs
+================================================================================
+
+================================================================================
+FILE: driver.rs
+FULL: C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\mods\my_mod\src\driver.rs
+BYTES: 2071
+================================================================================
+use mod_api_stable::*;
+
+pub struct DriverHook {
+    // casts: Mutex<HashMap<usize, CastState>>,
+}
+
+impl DriverHook {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+
+impl StableMatchHook for DriverHook {
+    fn on_match_start(&self, sim: &mut StableSim<'_>) {
+        // Runtime state is process-global inside the DLL, so clear only the
+        // namespace belonging to this concrete SimCtxV1.state instance.
+        crate::state::clear_sim(sim);
+        crate::state::clear_projectile_view_effects(sim);
+    }
+
+    fn on_match_tick(&self, sim: &mut StableSim<'_>, _rng_seed: u64) {
+        for index in 0..sim.player_count() {
+            let Some(player) = sim.player_at(index) else { continue; };
+            let player_id = player.id();
+            let alive = player.is_alive();
+            let entity_id = player.champion().map(|champion| champion.id());
+            if let Some(entity_id) = entity_id {
+                crate::state::bind_entity(sim, player_id, entity_id);
+            }
+            crate::state::update_player_lifecycle(sim, player_id, entity_id, alive);
+        }
+        crate::state::refresh_buff_visuals(sim);
+        crate::state::update_projectile_view_effects(sim);
+
+        // --- Paragon: apply any active periodic DoT channels (Godless ult) ---
+        let tick = sim.tick() as u64;
+        let count = sim.entity_count();
+        for i in 0..count {
+            let Some(source_id) = sim.entity_at(i).map(|e| e.id()) else { continue };
+            let due = crate::state::due_periodics(sim, source_id, tick);
+            for instance in due {
+                // Placeholder flat amount — real formula gets wired in once
+                // Godless's own action block is written.
+                sim.deal_damage_typed(instance.source_id, instance.target_id, 40, DamageTypeV1::Fixed, AttackTypeV1::Skill);
+                crate::state::advance_periodic(sim, instance.source_id, instance.target_id, instance.effect_id);
+            }
+        }
+    }
+
+    fn check_match_end(&self, _sim: &mut StableSim<'_>) -> Option<bool> { None }
+}
+================================================================================
+END FILE: driver.rs
+================================================================================
+
+================================================================================
+FILE: extension.rs
+FULL: C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\mods\my_mod\src\extension.rs
+BYTES: 991
+================================================================================
+use mod_api_stable::*;
+
+pub struct VfxExtension;
+
+impl StableExtension for VfxExtension {
+    fn post_render(&self, client: &mut StableClient<'_>) {
+        if !client.is_in_game() || !client.can_draw() {
+            return;
+        }
+        for snapshot in crate::state::buff_vfx_snapshot() {
+            let Some(binding) = crate::buff_visuals::binding(&snapshot.binding_name) else {
+                continue;
+            };
+            let Some(frame) = crate::buff_visuals::frame_for(binding, snapshot.elapsed_ticks) else {
+                continue;
+            };
+            let params = StableSpriteParams {
+                x: snapshot.x,
+                y: snapshot.y,
+                z: binding.z,
+                pivot_x: 0.5,
+                pivot_y: 0.5,
+                uv: frame.uv,
+                sample_nearest: true,
+                ..StableSpriteParams::default()
+            };
+            let _ = client.draw_sprite("Game", binding.texture, &params);
+        }
+    }
+}
+================================================================================
+END FILE: extension.rs
+================================================================================
+
+================================================================================
+FILE: helpers.rs
+FULL: C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\mods\my_mod\src\helpers.rs
+BYTES: 23154
+================================================================================
+use mod_api_stable::{
+    AttackTypeV1, BuffV1, CastingTargetV1, CastingTypeV1, InputTargetKindV1, InputTargetV1,
+    ProjectileMoveKindV1, ProjectileSpawnV1, StableSim,
+};
+
+const TRACKER_PRE_PREFIX: &str = "__forge_track_pre:";
+const TRACKER_POST_PREFIX: &str = "__forge_track_post:";
+
+pub fn buff_duration(sim: &StableSim<'_>, target_id: usize, buff_name: &str) -> Option<usize> {
+    sim.get_entity(target_id).and_then(|entity| {
+        (0..entity.buff_count()).find_map(|index| {
+            entity.buff_at(index).and_then(|buff| {
+                (buff.name() == buff_name).then_some(buff.duration_tick)
+            })
+        })
+    })
+}
+
+pub fn activate_damage_tracker(
+    sim: &mut StableSim<'_>,
+    target_id: usize,
+    tracker_name: &str,
+    pre_mitigation: bool,
+    window_ticks: usize,
+) {
+    let prefix = if pre_mitigation { TRACKER_PRE_PREFIX } else { TRACKER_POST_PREFIX };
+    let name = format!("{prefix}{tracker_name}");
+    let _ = sim.entity_remove_buff(target_id, &name);
+    sim.add_buff(target_id, &BuffV1::timed(&name, window_ticks));
+}
+
+pub fn record_tracked_damage(
+    sim: &mut StableSim<'_>,
+    target_id: usize,
+    damage: usize,
+    pre_mitigation: bool,
+) {
+    if damage == 0 { return; }
+    let prefix = if pre_mitigation { TRACKER_PRE_PREFIX } else { TRACKER_POST_PREFIX };
+    let trackers: Vec<(String, usize)> = sim.get_entity(target_id).map(|entity| {
+        (0..entity.buff_count()).filter_map(|index| entity.buff_at(index))
+            .filter(|buff| buff.name().starts_with(prefix))
+            .map(|buff| (buff.name().to_string(), buff.duration_tick))
+            .collect()
+    }).unwrap_or_default();
+    for (name, duration) in trackers {
+        let replacement_duration = duration.saturating_add(damage);
+        let _ = sim.entity_remove_buff(target_id, &name);
+        sim.add_buff(target_id, &BuffV1::timed(&name, replacement_duration));
+    }
+}
+
+pub fn tracked_damage(sim: &StableSim<'_>, target_id: usize, tracker_name: &str) -> usize {
+    [TRACKER_PRE_PREFIX, TRACKER_POST_PREFIX].into_iter()
+        .filter_map(|prefix| buff_duration(sim, target_id, &format!("{prefix}{tracker_name}")))
+        .max()
+        .unwrap_or(0)
+}
+
+pub fn count_buff_prefix(sim: &StableSim<'_>, target_id: usize, prefix: &str) -> usize {
+    sim.get_entity(target_id)
+        .map(|entity| {
+            (0..entity.buff_count())
+                .filter(|index| {
+                    entity
+                        .buff_at(*index)
+                        .map(|buff| buff.name().starts_with(prefix))
+                        .unwrap_or(false)
+                })
+                .count()
+        })
+        .unwrap_or(0)
+}
+
+fn has_buff_name(sim: &StableSim<'_>, target_id: usize, name: &str) -> bool {
+    sim.get_entity(target_id)
+        .map(|entity| {
+            (0..entity.buff_count()).any(|index| {
+                entity
+                    .buff_at(index)
+                    .map(|buff| buff.name() == name)
+                    .unwrap_or(false)
+            })
+        })
+        .unwrap_or(false)
+}
+
+pub fn add_unique_timed_marker(
+    sim: &mut StableSim<'_>,
+    target_id: usize,
+    prefix: &str,
+    duration_ticks: usize,
+) {
+    let mut index = count_buff_prefix(sim, target_id, prefix);
+    let name = loop {
+        let candidate: String = format!("{prefix}{index}").chars().take(64).collect();
+        if !has_buff_name(sim, target_id, &candidate) {
+            break candidate;
+        }
+        index = index.saturating_add(1);
+    };
+    sim.add_buff(target_id, &BuffV1::timed(&name, duration_ticks.max(1)));
+}
+
+pub fn add_timed_marker(
+    sim: &mut StableSim<'_>,
+    target_id: usize,
+    name: &str,
+    duration_ticks: usize,
+) {
+    let name: String = name.chars().take(64).collect();
+    sim.add_buff(target_id, &BuffV1::timed(&name, duration_ticks.max(1)));
+}
+
+pub fn projectile_hit_multiplier(base: f32, hit_count: usize) -> f32 {
+    base.max(0.0).powi(hit_count.min(i32::MAX as usize) as i32)
+}
+
+pub type EntityPos = (u64, u64);
+
+pub fn integer_sqrt(value: u64) -> u64 {
+    if value == 0 {
+        return 0;
+    }
+    let mut low = 0u64;
+    let mut high = value.saturating_add(1);
+    while low.saturating_add(1) < high {
+        let mid = low + (high - low) / 2;
+        if mid <= value / mid {
+            low = mid;
+        } else {
+            high = mid;
+        }
+    }
+    low
+}
+
+pub fn bounded_force_move_speed(speed: u64, ticks: u64, distance: u64) -> u64 {
+    if speed == 0 || ticks == 0 || distance == 0 {
+        return 0;
+    }
+    let required = distance
+        .saturating_add(ticks.saturating_sub(1))
+        .saturating_div(ticks)
+        .max(1);
+    speed.min(required)
+}
+
+pub fn squared_len_i128(x: i128, y: i128) -> i128 {
+    x.saturating_mul(x).saturating_add(y.saturating_mul(y))
+}
+
+pub fn distance_sq(a: EntityPos, b: EntityPos) -> u64 {
+    let dx = a.0 as i128 - b.0 as i128;
+    let dy = a.1 as i128 - b.1 as i128;
+    squared_len_i128(dx, dy).min(u64::MAX as i128) as u64
+}
+
+pub fn distance_to_segment_sq(point: EntityPos, start: EntityPos, end: EntityPos) -> u64 {
+    let px = point.0 as i128;
+    let py = point.1 as i128;
+    let ax = start.0 as i128;
+    let ay = start.1 as i128;
+    let abx = end.0 as i128 - ax;
+    let aby = end.1 as i128 - ay;
+    let ab_len_sq = squared_len_i128(abx, aby);
+    if ab_len_sq <= 0 {
+        return distance_sq(point, start);
+    }
+    let t_num = ((px - ax) * abx + (py - ay) * aby).clamp(0, ab_len_sq);
+    let dx_num = px * ab_len_sq - (ax * ab_len_sq + abx * t_num);
+    let dy_num = py * ab_len_sq - (ay * ab_len_sq + aby * t_num);
+    let Some(denominator) = ab_len_sq.checked_mul(ab_len_sq) else {
+        return distance_sq(point, start);
+    };
+    squared_len_i128(dx_num, dy_num)
+        .checked_div(denominator)
+        .unwrap_or(0)
+        .min(u64::MAX as i128) as u64
+}
+
+pub fn is_inside_cone(
+    point: EntityPos,
+    start: EntityPos,
+    target: EntityPos,
+    length: u64,
+    width_at_end: u64,
+) -> bool {
+    let dir_x = target.0 as f64 - start.0 as f64;
+    let dir_y = target.1 as f64 - start.1 as f64;
+    let dir_len = (dir_x * dir_x + dir_y * dir_y).sqrt();
+    if dir_len <= 0.0 {
+        return false;
+    }
+    let point_x = point.0 as f64 - start.0 as f64;
+    let point_y = point.1 as f64 - start.1 as f64;
+    let projection = (point_x * dir_x + point_y * dir_y) / dir_len;
+    if projection <= 0.0 || projection > length as f64 {
+        return false;
+    }
+    let perpendicular = (point_x * dir_y - point_y * dir_x).abs() / dir_len;
+    perpendicular <= (width_at_end as f64 / 2.0) * projection / dir_len
+}
+
+pub fn is_inside_cast_rectangle(
+    point: EntityPos,
+    start: EntityPos,
+    target: EntityPos,
+    length: u64,
+    width: u64,
+) -> bool {
+    let dx = target.0 as f64 - start.0 as f64;
+    let dy = target.1 as f64 - start.1 as f64;
+    let len = (dx * dx + dy * dy).sqrt();
+    if len <= 0.0 {
+        return false;
+    }
+    let end = (
+        (start.0 as f64 + dx / len * length as f64).round().max(0.0) as u64,
+        (start.1 as f64 + dy / len * length as f64).round().max(0.0) as u64,
+    );
+    let segment_x = end.0 as f64 - start.0 as f64;
+    let segment_y = end.1 as f64 - start.1 as f64;
+    let projection = (point.0 as f64 - start.0 as f64) * segment_x
+        + (point.1 as f64 - start.1 as f64) * segment_y;
+    let segment_len_sq = segment_x * segment_x + segment_y * segment_y;
+    projection >= 0.0
+        && projection <= segment_len_sq
+        && distance_to_segment_sq(point, start, end) <= (width / 2).saturating_mul(width / 2)
+}
+
+pub fn is_jungle_camp(sim: &StableSim<'_>, entity_id: usize) -> bool {
+    sim.get_entity(entity_id)
+        .map(|entity| {
+            entity.is_alive()
+                && !entity.is_champion()
+                && !entity.is_minion()
+                && !entity.is_tower()
+                && entity.team() == 2
+        })
+        .unwrap_or(false)
+}
+
+pub fn has_buff(sim: &StableSim<'_>, target_id: usize, buff_name: &str) -> bool {
+    has_buff_count(sim, target_id, buff_name, 1)
+}
+
+pub fn has_buff_count(
+    sim: &StableSim<'_>,
+    target_id: usize,
+    buff_name: &str,
+    minimum_count: usize,
+) -> bool {
+    sim.get_entity(target_id)
+        .map(|entity| {
+            (0..entity.buff_count())
+                .filter(|&i| {
+                    entity
+                        .buff_at(i)
+                        .map(|buff| buff.name() == buff_name)
+                        .unwrap_or(false)
+                })
+                .count()
+                >= minimum_count
+        })
+        .unwrap_or(false)
+}
+
+/// Matches an entity's exact name or a spawned instance name with a numeric
+/// suffix, such as `unit1` or `unit12`.
+pub fn entity_name_matches(sim: &StableSim<'_>, target_id: usize, expected: &str) -> bool {
+    let expected = expected.trim();
+    if expected.is_empty() {
+        return false;
+    }
+    let Some(actual) = sim.get_entity(target_id).and_then(|entity| entity.name()) else {
+        return false;
+    };
+    entity_name_matches_value(&actual, expected)
+}
+
+fn entity_name_matches_value(actual: &str, expected: &str) -> bool {
+    if actual == expected {
+        return true;
+    }
+    actual
+        .strip_prefix(expected)
+        .is_some_and(|suffix| !suffix.is_empty() && suffix.chars().all(|ch| ch.is_ascii_digit()))
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum FindBuffTeam {
+    Enemy,
+    Ally,
+}
+
+pub fn find_nearest_with_buff(
+    sim: &StableSim<'_>,
+    caster_id: usize,
+    buff_name: &str,
+    team: FindBuffTeam,
+    max_targets: usize,
+) -> Vec<usize> {
+    if max_targets == 0 {
+        return Vec::new();
+    }
+    let Some(caster) = sim.get_entity(caster_id) else {
+        return Vec::new();
+    };
+    let caster_team = caster.team();
+    let caster_pos = caster.pos();
+    let mut matches = Vec::new();
+    for index in 0..sim.entity_count() {
+        let Some(entity) = sim.entity_at(index) else {
+            continue;
+        };
+        if !entity.is_alive() || !entity.is_targetable() {
+            continue;
+        }
+        let same_team = entity.team() == caster_team;
+        let team_matches = match team {
+            FindBuffTeam::Enemy => !same_team,
+            FindBuffTeam::Ally => same_team,
+        };
+        if !team_matches || !has_buff(sim, entity.id(), buff_name) {
+            continue;
+        }
+        matches.push((distance_sq(caster_pos, entity.pos()), entity.id()));
+    }
+    matches.sort_unstable();
+    matches
+        .into_iter()
+        .take(max_targets)
+        .map(|(_, id)| id)
+        .collect()
+}
+
+pub fn distance_to(sim: &StableSim<'_>, caster_id: usize, target_id: usize) -> u64 {
+    let Some(caster) = sim.get_entity(caster_id) else {
+        return u64::MAX;
+    };
+    let Some(target) = sim.get_entity(target_id) else {
+        return u64::MAX;
+    };
+    distance_sq(caster.pos(), target.pos())
+}
+
+pub fn is_target_at_or_below_hp_percent(
+    sim: &StableSim<'_>,
+    target_id: usize,
+    threshold_percent: usize,
+) -> bool {
+    let Some(target) = sim.get_entity(target_id) else {
+        return false;
+    };
+    if !target.is_alive() || target.is_tower() {
+        return false;
+    }
+    let (current, max) = target.hp();
+    current.saturating_mul(100) <= max.saturating_mul(threshold_percent)
+}
+
+pub fn is_crowd_controlled(sim: &StableSim<'_>, target_id: usize) -> bool {
+    sim.get_entity(target_id)
+        .map(|entity| entity.cc_count() > 0)
+        .unwrap_or(false)
+}
+
+pub fn is_isolated(sim: &StableSim<'_>, target_id: usize, range: u64) -> bool {
+    let Some(target) = sim.get_entity(target_id) else {
+        return false;
+    };
+    if !target.is_alive() {
+        return false;
+    }
+    let team = target.team();
+    let center = target.pos();
+    let range_sq = range.saturating_mul(range);
+    for index in 0..sim.entity_count() {
+        let Some(ally) = sim.entity_at(index) else {
+            continue;
+        };
+        if ally.id() == target_id || ally.team() != team || !ally.is_alive() {
+            continue;
+        }
+        if distance_sq(ally.pos(), center) <= range_sq {
+            return false;
+        }
+    }
+    true
+}
+
+pub fn has_shield(sim: &StableSim<'_>, target_id: usize) -> bool {
+    sim.get_entity(target_id)
+        .map(|entity| entity.is_champion() && entity.shield() > 0)
+        .unwrap_or(false)
+}
+
+pub fn input_position(sim: &StableSim<'_>, input: InputTargetV1) -> Option<EntityPos> {
+    match InputTargetKindV1::from_code(input.kind) {
+        Some(InputTargetKindV1::Target) => {
+            sim.get_entity(input.target_id).map(|entity| entity.pos())
+        }
+        Some(InputTargetKindV1::Pos) => Some((input.x, input.y)),
+        _ => None,
+    }
+}
+
+/// Resolves the direction a projectile should use for the current cast.
+/// Target and position inputs become caster-to-input vectors; direction input
+/// already contains the desired vector.
+pub fn input_direction(
+    sim: &StableSim<'_>,
+    caster_id: usize,
+    target_id: usize,
+    input: InputTargetV1,
+) -> Option<(f64, f64)> {
+    let caster_pos = sim.get_entity(caster_id).map(|entity| entity.pos())?;
+    let (dx, dy) = match InputTargetKindV1::from_code(input.kind) {
+        Some(InputTargetKindV1::Target) => sim
+            .get_entity(input.target_id)
+            .or_else(|| sim.get_entity(target_id))
+            .map(|entity| {
+                (
+                    entity.pos().0 as f64 - caster_pos.0 as f64,
+                    entity.pos().1 as f64 - caster_pos.1 as f64,
+                )
+            })?,
+        Some(InputTargetKindV1::Pos) => (
+            input.x as f64 - caster_pos.0 as f64,
+            input.y as f64 - caster_pos.1 as f64,
+        ),
+        Some(InputTargetKindV1::Dir) => (input.dir_x as f64, input.dir_y as f64),
+        _ => return None,
+    };
+    let length = (dx * dx + dy * dy).sqrt();
+    (length > f64::EPSILON).then_some((dx / length, dy / length))
+}
+
+/// Returns an endpoint at `distance` along the cast direction rotated by the
+/// requested angle. Zero degrees preserves the original cast direction.
+pub fn rotated_input_endpoint(
+    sim: &StableSim<'_>,
+    caster_id: usize,
+    target_id: usize,
+    input: InputTargetV1,
+    distance: u64,
+    angle_degrees: i32,
+) -> Option<EntityPos> {
+    let caster_pos = sim.get_entity(caster_id).map(|entity| entity.pos())?;
+    let (unit_x, unit_y) = input_direction(sim, caster_id, target_id, input)?;
+    let (rotated_x, rotated_y) = rotate_direction(unit_x, unit_y, angle_degrees);
+    Some((
+        (caster_pos.0 as f64 + rotated_x * distance as f64).max(0.0) as u64,
+        (caster_pos.1 as f64 + rotated_y * distance as f64).max(0.0) as u64,
+    ))
+}
+
+pub fn rotate_direction(unit_x: f64, unit_y: f64, angle_degrees: i32) -> (f64, f64) {
+    let angle = (angle_degrees as f64).to_radians();
+    (
+        unit_x * angle.cos() - unit_y * angle.sin(),
+        unit_x * angle.sin() + unit_y * angle.cos(),
+    )
+}
+
+/// Declarative description of a `SpawnProjectile` native effect node, mirroring
+/// the compact shape a Data Graph projectile node already has as JSON. Collects
+/// every field the per-champion generated code would otherwise set on
+/// [`ProjectileSpawnV1`] by hand, so each call site in `native_effects/*.rs`
+/// reads as one struct literal instead of a dozen imperative `spec.field = ...`
+/// lines.
+pub struct ProjectileEffectSpec<'a> {
+    /// Registration name; also the key looked up against Projectile Visuals.
+    pub name: &'a str,
+    /// Optional companion view effect started (and tracked along the
+    /// projectile's live position) when this projectile spawns.
+    pub view_effect_name: &'a str,
+    pub on_caster: bool,
+    pub move_kind: ProjectileMoveKindV1,
+    /// Non-zero only for `Linear` movement: rotates the cast direction by this
+    /// many degrees before computing the projectile's endpoint.
+    pub angle_degrees: i32,
+    pub radius: u64,
+    pub speed: u64,
+    pub penetrate: bool,
+    pub attack_type: AttackTypeV1,
+    pub casting_type: CastingTypeV1,
+    pub casting_target: CastingTargetV1,
+}
+
+/// Spawns a projectile from a [`ProjectileEffectSpec`], resolving its launch
+/// position/target from the caster, target and cast input the way every
+/// generated `SpawnProjectile` node needs to.
+pub fn spawn_projectile_effect(
+    sim: &mut StableSim<'_>,
+    input: InputTargetV1,
+    caster_id: usize,
+    target_id: usize,
+    spec: ProjectileEffectSpec<'_>,
+) {
+    let mut projectile = ProjectileSpawnV1::default();
+    projectile.caster_id = caster_id;
+    projectile.team = sim.get_entity(caster_id).map(|entity| entity.team()).unwrap_or(0);
+    let caster_pos = sim.get_entity(caster_id).map(|entity| entity.pos()).unwrap_or((0, 0));
+    let mut target_pos = sim
+        .get_entity(target_id)
+        .map(|entity| entity.pos())
+        .unwrap_or(caster_pos);
+    if spec.angle_degrees != 0 && spec.move_kind == ProjectileMoveKindV1::Linear {
+        let direction_pos = input_position(sim, input)
+            .or_else(|| sim.get_entity(target_id).map(|entity| entity.pos()))
+            .unwrap_or(caster_pos);
+        let dx = direction_pos.0.abs_diff(caster_pos.0);
+        let dy = direction_pos.1.abs_diff(caster_pos.1);
+        let distance = integer_sqrt(dx.saturating_mul(dx).saturating_add(dy.saturating_mul(dy)));
+        if let Some(rotated) =
+            rotated_input_endpoint(sim, caster_id, target_id, input, distance, spec.angle_degrees)
+        {
+            target_pos = rotated;
+        }
+    }
+    projectile.x = if spec.on_caster { caster_pos.0 } else { target_pos.0 };
+    projectile.y = if spec.on_caster { caster_pos.1 } else { target_pos.1 };
+    projectile.target_id = target_id;
+    projectile.target_x = target_pos.0;
+    projectile.target_y = target_pos.1;
+    projectile.radius = spec.radius;
+    projectile.speed = spec.speed;
+    projectile.move_kind = spec.move_kind.code();
+    projectile.penetrate = spec.penetrate;
+    projectile.attack_type = spec.attack_type.code();
+    projectile.casting_type = spec.casting_type.code();
+    projectile.casting_target = spec.casting_target.code();
+
+    let projectile_name = spec.name.to_string();
+    let _ = sim.spawn_projectile(&projectile_name, &projectile_name, &projectile);
+    if !spec.view_effect_name.trim().is_empty() {
+        crate::state::start_projectile_view_effect(
+            sim,
+            caster_id,
+            &projectile_name,
+            projectile.x,
+            projectile.y,
+            spec.view_effect_name,
+            projectile.radius,
+            sim.tick(),
+        );
+    }
+}
+
+/// Where a MoveTo effect should aim, mirroring the ability's cast input kind.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum MoveTargetKind {
+    Entity,
+    Location,
+    Direction,
+}
+
+/// Computes the landing point for a MoveTo effect.
+///
+/// The direction and destination come from the cast input: `Entity` moves
+/// toward the resolved target entity, `Location` toward the cast position,
+/// and `Direction` along the cast direction. `move_away` flips the direction
+/// to move away from the target instead. The total travel is clamped by
+/// `min_distance` (floor, can overshoot) and `max_distance` (ceiling), then
+/// `offset_x`/`offset_y` are added to the final landing point.
+pub fn move_destination(
+    mode: MoveTargetKind,
+    caster_pos: EntityPos,
+    input: InputTargetV1,
+    target_id: usize,
+    sim: &StableSim<'_>,
+    min_distance: u64,
+    max_distance: u64,
+    offset_x: i64,
+    offset_y: i64,
+    move_away: bool,
+) -> EntityPos {
+    let (dx, dy) = match mode {
+        MoveTargetKind::Entity => {
+            let target_pos = sim
+                .get_entity(target_id)
+                .map(|entity| entity.pos())
+                .unwrap_or(caster_pos);
+            (
+                target_pos.0 as f64 - caster_pos.0 as f64,
+                target_pos.1 as f64 - caster_pos.1 as f64,
+            )
+        }
+        MoveTargetKind::Location => (
+            input.x as f64 - caster_pos.0 as f64,
+            input.y as f64 - caster_pos.1 as f64,
+        ),
+        MoveTargetKind::Direction => (input.dir_x as f64, input.dir_y as f64),
+    };
+    let (dx, dy) = if move_away { (-dx, -dy) } else { (dx, dy) };
+    let dir_len = (dx * dx + dy * dy).sqrt();
+    let (unit_x, unit_y) = if dir_len > 0.0 {
+        (dx / dir_len, dy / dir_len)
+    } else {
+        (0.0, 0.0)
+    };
+    let full_dist = match mode {
+        MoveTargetKind::Entity | MoveTargetKind::Location => dir_len,
+        // A pure direction has no natural endpoint; min/max define the travel.
+        MoveTargetKind::Direction => max_distance.max(min_distance) as f64,
+    };
+    let mut travel = full_dist;
+    if max_distance > 0 {
+        travel = travel.min(max_distance as f64);
+    }
+    if min_distance > 0 {
+        travel = travel.max(min_distance as f64);
+    }
+    let x = caster_pos.0 as f64 + unit_x * travel + offset_x as f64;
+    let y = caster_pos.1 as f64 + unit_y * travel + offset_y as f64;
+    (x.max(0.0) as u64, y.max(0.0) as u64)
+}
+
+pub fn chance_percent(
+    seed: u64,
+    caster_id: usize,
+    target_id: usize,
+    tick: usize,
+    percent: usize,
+) -> bool {
+    if percent >= 100 {
+        return true;
+    }
+    splitmix64(
+        seed ^ ((caster_id as u64) << 40) ^ ((target_id as u64) << 16) ^ tick as u64 ^ 0xa11ce,
+    ) % 100
+        < percent as u64
+}
+
+/// Deterministically selects an index from `0..len` from a host-provided seed.
+///
+/// The same `(seed, salt, len)` always returns the same index. `salt` lets
+/// independent random operations derive different deterministic choices from
+/// the same callback seed without introducing nondeterministic state.
+pub fn seeded_index(seed: u64, salt: u64, len: usize) -> usize {
+    if len <= 1 {
+        return 0;
+    }
+    (splitmix64(seed ^ salt) as usize) % len
+}
+
+fn splitmix64(mut value: u64) -> u64 {
+    value = value.wrapping_add(0x9e3779b97f4a7c15);
+    let mut z = value;
+    z = (z ^ (z >> 30)).wrapping_mul(0xbf58476d1ce4e5b9);
+    z = (z ^ (z >> 27)).wrapping_mul(0x94d049bb133111eb);
+    z ^ (z >> 31)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{entity_name_matches_value, rotate_direction};
+
+    #[test]
+    fn entity_name_matches_numeric_spawn_suffixes() {
+        assert!(entity_name_matches_value("clone", "clone"));
+        assert!(entity_name_matches_value("clone1", "clone"));
+        assert!(entity_name_matches_value("clone12", "clone"));
+        assert!(!entity_name_matches_value("clone_extra", "clone"));
+        assert!(!entity_name_matches_value("clone1x", "clone"));
+    }
+
+    #[test]
+    fn zero_degree_rotation_preserves_cast_direction() {
+        let (x, y) = rotate_direction(1.0, 0.0, 0);
+        assert!((x - 1.0).abs() < 0.000_001);
+        assert!(y.abs() < 0.000_001);
+    }
+
+    #[test]
+    fn twelve_radial_steps_make_one_full_circle() {
+        let first = rotate_direction(1.0, 0.0, 0);
+        let last = rotate_direction(1.0, 0.0, 330);
+        let next = rotate_direction(1.0, 0.0, 360);
+        assert!((first.0 - next.0).abs() < 0.000_001);
+        assert!((first.1 - next.1).abs() < 0.000_001);
+        assert!((first.0 - last.0).abs() > 0.1);
+    }
+}
+================================================================================
+END FILE: helpers.rs
+================================================================================
+
+================================================================================
+FILE: kirito.rs
+FULL: C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\mods\my_mod\src\kirito.rs
+BYTES: 1401
+================================================================================
+use mod_api_stable::*;
+
+const EVOLVE_COUNTER: &str = "kirito_evolve";
+const EVOLVE_1_BUFF: &str = "kirito_evolve_1";
+const EVOLVE_2_BUFF: &str = "kirito_evolve_2";
+
+#[derive(Debug)]
+pub struct KiritoEvolveTick;
+
+impl StableEffectType for KiritoEvolveTick {
+    fn apply(&self, sim: &mut StableSim<'_>, _rng_seed: u64, caster_id: usize, _input: InputTargetV1) {
+        crate::state::add_counter(sim, caster_id, EVOLVE_COUNTER, 1);
+        let total = crate::state::counter_value(sim, caster_id, EVOLVE_COUNTER);
+
+        if total >= 100 && !crate::helpers::has_buff(sim, caster_id, EVOLVE_1_BUFF) {
+            let mut buff = BuffV1::named(EVOLVE_1_BUFF);
+            buff.attack = 10;
+            buff.defence = 5;
+            crate::state::add_buff(sim, caster_id, &buff, true, false, 1, true);
+            sim.play_view_effect("kirito_circular", caster_id, &InputTargetV1::target(caster_id), 0, 0, 60);
+        }
+
+        if total >= 200 && !crate::helpers::has_buff(sim, caster_id, EVOLVE_2_BUFF) {
+            let mut buff = BuffV1::named(EVOLVE_2_BUFF);
+            buff.attack = 20;
+            buff.defence = 10;
+            buff.move_speed_mult = 20;
+            crate::state::add_buff(sim, caster_id, &buff, true, false, 1, true);
+            sim.play_view_effect("kirito_starburst", caster_id, &InputTargetV1::target(caster_id), 0, 0, 60);
+        }
+    }
+}
+================================================================================
+END FILE: kirito.rs
+================================================================================
+
+================================================================================
+FILE: lib.rs
+FULL: C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\mods\my_mod\src\lib.rs
+BYTES: 509
+================================================================================
+use mod_api_stable::*;
+
+pub mod kirito;
+mod native_effects;
+mod driver;
+mod extension;
+mod buff_visuals;
+mod helpers;
+mod logger;
+mod state;
+mod paragon;
+mod paragon_passive;
+mod sunwue;
+
+fn init(_host: &StableHost) -> StableMod {
+    let mut reg = StableMod::new("my_mod");
+    native_effects::register(&mut reg);
+    // [paragon-port] reg.add_champion(paragon::Paragon);
+    reg.set_match_hook(driver::DriverHook::new());
+    reg.set_extension(extension::VfxExtension);
+    reg
+}
+
+declare_stable_mod!(init);
+================================================================================
+END FILE: lib.rs
+================================================================================
+
+================================================================================
+FILE: logger.rs
+FULL: C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\mods\my_mod\src\logger.rs
+BYTES: 560
+================================================================================
+use std::fs::OpenOptions;
+use std::io::Write;
+
+fn log_path() -> std::path::PathBuf {
+    std::env::temp_dir().join("my_mod.log")
+}
+
+pub fn log(msg: &str) {
+    let Ok(mut file) = OpenOptions::new().create(true).append(true).open(log_path()) else {
+        return;
+    };
+    let _ = writeln!(file, "{msg}");
+}
+
+#[cfg(debug_assertions)]
+#[macro_export]
+macro_rules! diagnostic_log {
+    ($message:expr) => {
+        crate::logger::log($message);
+    };
+}
+
+#[cfg(not(debug_assertions))]
+#[macro_export]
+macro_rules! diagnostic_log {
+    ($message:expr) => {};
+}
+================================================================================
+END FILE: logger.rs
+================================================================================
+
+================================================================================
+FILE: native_effects/kirito.rs
+FULL: C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\mods\my_mod\src\native_effects\kirito.rs
+BYTES: 1401
+================================================================================
+use mod_api_stable::*;
+
+const EVOLVE_COUNTER: &str = "kirito_evolve";
+const EVOLVE_1_BUFF: &str = "kirito_evolve_1";
+const EVOLVE_2_BUFF: &str = "kirito_evolve_2";
+
+#[derive(Debug)]
+pub struct KiritoEvolveTick;
+
+impl StableEffectType for KiritoEvolveTick {
+    fn apply(&self, sim: &mut StableSim<'_>, _rng_seed: u64, caster_id: usize, _input: InputTargetV1) {
+        crate::state::add_counter(sim, caster_id, EVOLVE_COUNTER, 1);
+        let total = crate::state::counter_value(sim, caster_id, EVOLVE_COUNTER);
+
+        if total >= 100 && !crate::helpers::has_buff(sim, caster_id, EVOLVE_1_BUFF) {
+            let mut buff = BuffV1::named(EVOLVE_1_BUFF);
+            buff.attack = 10;
+            buff.defence = 5;
+            crate::state::add_buff(sim, caster_id, &buff, true, false, 1, true);
+            sim.play_view_effect("kirito_circular", caster_id, &InputTargetV1::target(caster_id), 0, 0, 60);
+        }
+
+        if total >= 200 && !crate::helpers::has_buff(sim, caster_id, EVOLVE_2_BUFF) {
+            let mut buff = BuffV1::named(EVOLVE_2_BUFF);
+            buff.attack = 20;
+            buff.defence = 10;
+            buff.move_speed_mult = 20;
+            crate::state::add_buff(sim, caster_id, &buff, true, false, 1, true);
+            sim.play_view_effect("kirito_starburst", caster_id, &InputTargetV1::target(caster_id), 0, 0, 60);
+        }
+    }
+}
+================================================================================
+END FILE: native_effects/kirito.rs
+================================================================================
+
+================================================================================
+FILE: native_effects/mod.rs
+FULL: C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\mods\my_mod\src\native_effects\mod.rs
+BYTES: 10849
+================================================================================
+use mod_api_stable::*;
+
+mod kirito;
+
+#[derive(Debug)]
+struct ForgeSpawnAttackGate;
+
+impl StableEffectType for ForgeSpawnAttackGate {
+    fn apply(&self, sim: &mut StableSim<'_>, _rng_seed: u64, caster_id: usize, input: InputTargetV1) {
+        if input.kind == InputTargetKindV1::Target.code() {
+            crate::state::maintain_spawn_attack_gate(sim, caster_id, input.target_id);
+        }
+    }
+}
+
+// ============================================================
+// NARUTO — clone-spawning effects (confirmed working, restored
+// after Rust Forge's Export wiped this file back to the stub)
+// ============================================================
+
+fn clone_loadout(caster_stat: &StatV1) -> (StatV1, UnitAttackV1) {
+    let clone_stat = StatV1 {
+        attack: (caster_stat.attack as f32 * 0.40) as usize,
+        magic_power: 0,
+        hp: (caster_stat.hp as f32 * 0.25) as usize,
+        defence: caster_stat.defence,
+        magic_resistance: caster_stat.magic_resistance,
+        move_speed: caster_stat.move_speed,
+        hp_regen: caster_stat.hp_regen,
+        stack: 0,
+        crit_chance: caster_stat.crit_chance,
+    };
+
+    let clone_attack = UnitAttackV1 {
+        attack_ratio: 100,
+        attack: 0,
+        range: 6000,
+        cooltime: 40,
+        duration: 20,
+        start_timing: 10,
+        cancelable: false,
+        attack_type: AttackTypeV1::BaseAttack.code(),
+    };
+
+    (clone_stat, clone_attack)
+}
+
+#[derive(Debug)]
+struct NarutoSpawnOneClone;
+
+impl StableEffectType for NarutoSpawnOneClone {
+    fn apply(&self, sim: &mut StableSim<'_>, _rng_seed: u64, caster_id: usize, _input: InputTargetV1) {
+        let Some((team, (cx, cy), stat)) = (|| {
+            let caster = sim.get_entity(caster_id)?;
+            Some((caster.team(), caster.pos(), caster.stat()))
+        })() else { return };
+
+        let (clone_stat, clone_attack) = clone_loadout(&stat);
+        sim.spawn_unit("naruto", caster_id, team, cx + 2000, cy, 300, &clone_stat, &clone_attack);
+    }
+}
+
+#[derive(Debug)]
+struct NarutoSpawnTwoClones;
+
+impl StableEffectType for NarutoSpawnTwoClones {
+    fn apply(&self, sim: &mut StableSim<'_>, _rng_seed: u64, caster_id: usize, _input: InputTargetV1) {
+        let Some((team, (cx, cy), stat)) = (|| {
+            let caster = sim.get_entity(caster_id)?;
+            Some((caster.team(), caster.pos(), caster.stat()))
+        })() else { return };
+
+        let (clone_stat, clone_attack) = clone_loadout(&stat);
+        sim.spawn_unit("naruto", caster_id, team, cx + 2000, cy + 1500, 300, &clone_stat, &clone_attack);
+        sim.spawn_unit("naruto", caster_id, team, cx + 2000, cy.saturating_sub(1500), 300, &clone_stat, &clone_attack);
+    }
+}
+
+#[derive(Debug)]
+struct NarutoSpawnCloneSwarm;
+
+impl StableEffectType for NarutoSpawnCloneSwarm {
+    fn apply(&self, sim: &mut StableSim<'_>, _rng_seed: u64, caster_id: usize, _input: InputTargetV1) {
+        let Some((team, (cx, cy), stat)) = (|| {
+            let caster = sim.get_entity(caster_id)?;
+            Some((caster.team(), caster.pos(), caster.stat()))
+        })() else { return };
+
+        let (clone_stat, clone_attack) = clone_loadout(&stat);
+        sim.spawn_unit("naruto", caster_id, team, cx + 2500, cy + 1500, 300, &clone_stat, &clone_attack);
+        sim.spawn_unit("naruto", caster_id, team, cx + 2500, cy.saturating_sub(1500), 300, &clone_stat, &clone_attack);
+        sim.spawn_unit("naruto", caster_id, team, cx.saturating_sub(2000), cy + 2000, 300, &clone_stat, &clone_attack);
+        sim.spawn_unit("naruto", caster_id, team, cx.saturating_sub(2000), cy.saturating_sub(2000), 300, &clone_stat, &clone_attack);
+    }
+}
+
+// ============================================================
+// SAITAMA — combo/serious-mode effects
+// ============================================================
+
+const SERIOUS_BUFF: &str = "saitama_serious_mode";
+const COMBO_COUNTER: &str = "saitama_combo";
+
+#[derive(Debug)]
+struct SaitamaComboTick;
+impl StableEffectType for SaitamaComboTick {
+    fn apply(&self, sim: &mut StableSim<'_>, _rng_seed: u64, caster_id: usize, _input: InputTargetV1) {
+        crate::state::add_counter(sim, caster_id, COMBO_COUNTER, 1);
+    }
+}
+
+fn saitama_flurry(sim: &mut StableSim<'_>, caster_id: usize, target_id: usize, hits: u32, base_ratio: i64) {
+    let tier = crate::state::counter_value(sim, caster_id, COMBO_COUNTER).min(20);
+    let Some(atk) = sim.get_entity(caster_id).map(|e| e.stat().attack) else { return };
+    let ratio = base_ratio + tier * 15;
+    let amount = (atk as i64 * ratio / 100 / hits as i64).max(1) as usize;
+    for _ in 0..hits {
+        sim.deal_damage_typed(caster_id, target_id, amount, DamageTypeV1::Ad, AttackTypeV1::Skill);
+    }
+}
+
+fn saitama_serious_punch(sim: &mut StableSim<'_>, caster_id: usize, target_id: usize, base_ratio: i64) {
+    let tier = crate::state::counter_value(sim, caster_id, COMBO_COUNTER).min(20);
+    let Some(atk) = sim.get_entity(caster_id).map(|e| e.stat().attack) else { return };
+    let ratio = base_ratio + tier * 100 + 800;
+    let amount = (atk as i64 * ratio / 100).max(0) as usize;
+    sim.deal_damage_typed(caster_id, target_id, amount, DamageTypeV1::Ad, AttackTypeV1::Skill);
+    sim.play_view_effect("saitama_serious_punch_impact", caster_id, &InputTargetV1::target(target_id), 0, 0, 30);
+}
+
+#[derive(Debug)]
+struct SaitamaSkillPunch;
+impl StableEffectType for SaitamaSkillPunch {
+    fn apply(&self, sim: &mut StableSim<'_>, _rng_seed: u64, caster_id: usize, input: InputTargetV1) {
+        if crate::helpers::has_buff(sim, caster_id, SERIOUS_BUFF) {
+            saitama_serious_punch(sim, caster_id, input.target_id, 80);
+        } else {
+            saitama_flurry(sim, caster_id, input.target_id, 3, 90);
+        }
+    }
+}
+
+#[derive(Debug)]
+struct SaitamaSkillPunch2;
+impl StableEffectType for SaitamaSkillPunch2 {
+    fn apply(&self, sim: &mut StableSim<'_>, _rng_seed: u64, caster_id: usize, input: InputTargetV1) {
+        if crate::helpers::has_buff(sim, caster_id, SERIOUS_BUFF) {
+            let Some((cx, cy, team)) = sim.get_entity(caster_id).map(|e| (e.pos().0, e.pos().1, e.team())) else { return };
+            let spec = ProjectileSpawnV1 {
+                caster_id,
+                team,
+                x: cx,
+                y: cy,
+                radius: 500,
+                speed: 3000,
+                move_kind: ProjectileMoveKindV1::Target.code(),
+                target_id: input.target_id,
+                target_x: 0,
+                target_y: 0,
+                penetrate: false,
+                attack_type: AttackTypeV1::Skill.code(),
+                casting_type: CastingTypeV1::Targeting.code(),
+                casting_target: CastingTargetV1::Enemy.code(),
+            };
+            sim.spawn_projectile("saitama_table_flip", "saitama_table_flip_hit", &spec);
+        } else {
+            saitama_flurry(sim, caster_id, input.target_id, 2, 100);
+        }
+    }
+}
+
+#[derive(Debug)]
+struct SaitamaTableFlipHit;
+impl StableEffectType for SaitamaTableFlipHit {
+    fn apply(&self, sim: &mut StableSim<'_>, _rng_seed: u64, caster_id: usize, input: InputTargetV1) {
+        let tier = crate::state::counter_value(sim, caster_id, COMBO_COUNTER).min(20);
+        let Some(atk) = sim.get_entity(caster_id).map(|e| e.stat().attack) else { return };
+        let amount = (atk as i64 * (150 + tier * 20) / 100).max(0) as usize;
+        sim.deal_damage_typed(caster_id, input.target_id, amount, DamageTypeV1::Ad, AttackTypeV1::Skill);
+
+        let cc = CcV1 {
+            kind: CcKindV1::Stun.code(),
+            tick: 60,
+            dx: 0, dy: 0, speed: 0,
+            target: 0,
+            name_buf: [0u8; BUFF_NAME_CAP],
+            name_len: 0,
+        };
+        sim.apply_cc(input.target_id, &cc);
+    }
+}
+
+#[derive(Debug)]
+struct SaitamaSeriousMode;
+impl StableEffectType for SaitamaSeriousMode {
+    fn apply(&self, sim: &mut StableSim<'_>, _rng_seed: u64, caster_id: usize, input: InputTargetV1) {
+        if crate::helpers::has_buff(sim, caster_id, SERIOUS_BUFF) {
+            let target_pos = sim.get_entity(input.target_id).map(|e| e.pos());
+            let tier = crate::state::counter_value(sim, caster_id, COMBO_COUNTER).min(20);
+            let Some(atk) = sim.get_entity(caster_id).map(|e| e.stat().attack) else { return };
+            let amount = (atk as i64 * (600 + tier * 60) / 100).max(0) as usize;
+            sim.deal_damage_typed(caster_id, input.target_id, amount, DamageTypeV1::Ad, AttackTypeV1::Skill);
+            if let Some((tx, ty)) = target_pos {
+                sim.play_view_effect("saitama_death_punch_impact", caster_id, &InputTargetV1::pos(tx, ty), 0, 0, 45);
+            }
+            crate::state::remove_buff(sim, caster_id, SERIOUS_BUFF);
+        } else {
+            let mut buff = BuffV1::timed(SERIOUS_BUFF, 1000);
+            buff.attack_mult = 150;
+            buff.ult_cooldown_mult = -35;
+            crate::state::add_buff(sim, caster_id, &buff, true, false, 1, true);
+        }
+    }
+}
+
+pub fn register(reg: &mut StableMod) {
+    reg.add_native_effect("__forge_spawn_attack_gate", ForgeSpawnAttackGate);
+
+    // Naruto
+    reg.add_native_effect("naruto_spawn_one_clone", NarutoSpawnOneClone);
+    reg.add_native_effect("naruto_spawn_two_clones", NarutoSpawnTwoClones);
+    reg.add_native_effect("naruto_spawn_clone_swarm", NarutoSpawnCloneSwarm);
+
+    // Saitama
+    reg.add_native_effect("saitama_combo_tick", SaitamaComboTick);
+    reg.add_native_effect("saitama_skill_punch", SaitamaSkillPunch);
+    reg.add_native_effect("saitama_skill_punch2", SaitamaSkillPunch2);
+    reg.add_native_effect("saitama_table_flip_hit", SaitamaTableFlipHit);
+    reg.add_native_effect("saitama_serious_mode", SaitamaSeriousMode);
+
+    // Paragon
+    reg.add_native_effect("paragon_wrathgrasp", crate::paragon::ParagonWrathgraspEffect);
+    reg.add_native_effect("paragon_shatter_chain", crate::paragon::ParagonShatterChainEffect);
+    reg.add_native_effect("paragon_godless", crate::paragon::ParagonGodlessEffect);
+    reg.add_native_passive("paragon_passive", crate::paragon_passive::ParagonPassive::default());
+
+    // Kirito
+    reg.add_native_effect("kirito_evolve_tick", crate::kirito::KiritoEvolveTick);
+
+    // Sunwue
+    reg.add_native_effect("sunwue_sword_qi", crate::sunwue::SunWueSwordQiEffect);
+    reg.add_native_effect("sunwue_qi_barrier", crate::sunwue::SunWueBarrierEffect);
+    reg.add_native_effect("sunwue_myriad_slam_self", crate::sunwue::SunWueMyriadSlamSelf);
+    reg.add_native_passive("sunwue_cultivation", crate::sunwue::SunWuePassive::default());
+    reg.add_champion(crate::sunwue::SunWue);
+}
+================================================================================
+END FILE: native_effects/mod.rs
+================================================================================
+
+================================================================================
+FILE: paragon.rs
+FULL: C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\mods\my_mod\src\paragon.rs
+BYTES: 10852
+================================================================================
+// --- Paragon: StableChampion skeleton. No .data_champion file exists for
+// this champion — everything here IS his data. Add `mod paragon;` to
+// lib.rs, and `reg.add_champion(Paragon);` inside `init()`.
+
+use mod_api_stable::*;
+
+pub struct Paragon;
+
+impl StableChampion for Paragon {
+    fn id(&self) -> String {
+        "paragon".to_string()
+    }
+
+    fn name(&self) -> String {
+        "Paragon".to_string()
+    }
+
+    fn category(&self) -> ChampionCategoryV1 {
+        ChampionCategoryV1::Melee
+    }
+
+    fn tags(&self) -> Vec<ChampionTagV1> {
+        vec![ChampionTagV1::Ad, ChampionTagV1::Melee, ChampionTagV1::Tank, ChampionTagV1::Cc]
+    }
+
+    fn stat(&self) -> StatV1 {
+        StatV1 {
+            attack: 90,
+            magic_power: 0,
+            hp: 1300, // deliberately tanky — fits the "immovable" identity
+            defence: 35,
+            magic_resistance: 30,
+            move_speed: 1000, // slower than most — sells the "heavy, deliberate" movement
+            hp_regen: 2,
+            stack: 0,
+            crit_chance: 0,
+        }
+    }
+
+    fn growth(&self) -> StatV1 {
+        StatV1 {
+            attack: 18,
+            magic_power: 0,
+            hp: 130,
+            defence: 6,
+            magic_resistance: 5,
+            move_speed: 5,
+            hp_regen: 1,
+            stack: 0,
+            crit_chance: 0,
+        }
+    }
+
+    fn attack(&self) -> Box<dyn StableAction> {
+        Box::new(ParagonBasicAttack)
+    }
+
+    fn skill(&self) -> Box<dyn StableAction> {
+        Box::new(ParagonWrathgrasp)
+    }
+
+    fn skill2(&self) -> Box<dyn StableAction> {
+        Box::new(ParagonShatterChain)
+    }
+
+    fn ult(&self) -> Option<Box<dyn StableAction>> {
+        Some(Box::new(ParagonGodless))
+    }
+
+    fn passive(&self) -> Option<Box<dyn StablePassive>> {
+        Some(Box::new(crate::paragon_passive::ParagonPassive::default()))
+    }
+}
+
+// --- Action stubs. Each needs a real StableEffectType behind it — these
+// return placeholder durations/cooldowns for now so the whole thing
+// compiles; the actual grab/fear-bind/godless logic gets written next.
+
+#[derive(Clone)]
+struct ParagonBasicAttack;
+impl StableAction for ParagonBasicAttack {
+    fn clone_box(&self) -> Box<dyn StableAction> { Box::new(self.clone()) }
+    fn action_name(&self) -> String { "attack".to_string() }
+    fn duration(&self) -> usize { 20 }
+    fn cooltime(&self, _caster_stat: &StatV1, _caster_level: usize) -> usize { 50 }
+    fn casting_target(&self) -> CastingTargetV1 { CastingTargetV1::Enemy }
+    fn effect(&self) -> Option<StableEffectSpec> {
+        Some(StableEffectSpec {
+            range: 15000,
+            growth_range: 0,
+            start_timing: 6,
+            casting: CastingTypeV1::Targeting,
+            target: CastingTargetV1::Enemy,
+            attack_type: AttackTypeV1::BaseAttack,
+            effect: Box::new(ParagonBasicAttackEffect),
+        })
+    }
+}
+
+#[derive(Clone)]
+struct ParagonWrathgrasp;
+impl StableAction for ParagonWrathgrasp {
+    fn clone_box(&self) -> Box<dyn StableAction> { Box::new(self.clone()) }
+    fn action_name(&self) -> String { "skill".to_string() }
+    fn duration(&self) -> usize { 24 }
+    fn cooltime(&self, _caster_stat: &StatV1, _caster_level: usize) -> usize { 160 }
+    fn casting_target(&self) -> CastingTargetV1 { CastingTargetV1::EnemyChampion }
+    fn effect(&self) -> Option<StableEffectSpec> {
+        Some(StableEffectSpec {
+            range: 15000,
+            growth_range: 0,
+            start_timing: 5,
+            casting: CastingTypeV1::Targeting,
+            target: CastingTargetV1::EnemyChampion,
+            attack_type: AttackTypeV1::Skill,
+            effect: Box::new(ParagonWrathgraspEffect),
+        })
+    }
+}
+
+#[derive(Clone)]
+struct ParagonShatterChain;
+impl StableAction for ParagonShatterChain {
+    fn clone_box(&self) -> Box<dyn StableAction> { Box::new(self.clone()) }
+    fn action_name(&self) -> String { "skill2".to_string() }
+    fn duration(&self) -> usize { 30 }
+    fn cooltime(&self, _caster_stat: &StatV1, _caster_level: usize) -> usize { 200 }
+    fn casting_target(&self) -> CastingTargetV1 { CastingTargetV1::EnemyChampion }
+    fn effect(&self) -> Option<StableEffectSpec> {
+        Some(StableEffectSpec {
+            range: 15000,
+            growth_range: 0,
+            start_timing: 6,
+            casting: CastingTypeV1::Targeting,
+            target: CastingTargetV1::EnemyChampion,
+            attack_type: AttackTypeV1::Skill,
+            effect: Box::new(ParagonShatterChainEffect),
+        })
+    }
+}
+
+#[derive(Clone)]
+struct ParagonGodless;
+impl StableAction for ParagonGodless {
+    fn clone_box(&self) -> Box<dyn StableAction> { Box::new(self.clone()) }
+    fn action_name(&self) -> String { "ult".to_string() }
+    fn duration(&self) -> usize { 40 }
+    fn cooltime(&self, _caster_stat: &StatV1, _caster_level: usize) -> usize { 1200 }
+    fn casting_target(&self) -> CastingTargetV1 { CastingTargetV1::None }
+    fn effect(&self) -> Option<StableEffectSpec> {
+        Some(StableEffectSpec {
+            range: 0,
+            growth_range: 0,
+            start_timing: 8,
+            casting: CastingTypeV1::None,
+            target: CastingTargetV1::Enemy,
+            attack_type: AttackTypeV1::Skill,
+            effect: Box::new(ParagonGodlessEffect),
+        })
+    }
+}
+
+// ============================================================
+// Real effect implementations behind each action above.
+// ============================================================
+
+#[derive(Debug)]
+struct ParagonBasicAttackEffect;
+impl StableEffectType for ParagonBasicAttackEffect {
+    fn apply(&self, sim: &mut StableSim<'_>, _rng_seed: u64, caster_id: usize, input: InputTargetV1) {
+        crate::logger::log(&format!("[PARAGON] Basic attack fired: caster={} target={}", caster_id, input.target_id));
+        let Some(atk) = sim.get_entity(caster_id).map(|e| e.stat().attack) else { return };
+        sim.deal_damage_typed(caster_id, input.target_id, atk, DamageTypeV1::Ad, AttackTypeV1::BaseAttack);
+    }
+
+    fn expected_damage(&self, caster_stat: &StatV1) -> (usize, usize) {
+        (caster_stat.attack, 0)
+    }
+}
+
+#[derive(Debug)]
+pub struct ParagonWrathgraspEffect;
+impl StableEffectType for ParagonWrathgraspEffect {
+    fn apply(&self, sim: &mut StableSim<'_>, _rng_seed: u64, caster_id: usize, input: InputTargetV1) {
+        crate::logger::log(&format!("[PARAGON] Wrathgrasp fired: caster={} target={}", caster_id, input.target_id));
+        // Yank the target toward the caster, then land the impact hit.
+        sim.entity_grab(caster_id, input.target_id, 4000, 20);
+        let Some(atk) = sim.get_entity(caster_id).map(|e| e.stat().attack) else { return };
+        let amount = (atk as i64 * 140 / 100).max(0) as usize; // 140% AD, placeholder
+        sim.deal_damage_typed(caster_id, input.target_id, amount, DamageTypeV1::Ad, AttackTypeV1::Skill);
+        sim.play_view_effect("paragon_grab_impact", caster_id, &InputTargetV1::target(input.target_id), 15000, 500, 30);
+    }
+
+    fn expected_damage(&self, caster_stat: &StatV1) -> (usize, usize) {
+        (caster_stat.attack * 140 / 100, 0)
+    }
+
+    fn expected_move_distance(&self) -> Option<(usize, u64)> {
+        Some((20, 4000)) // ticks, speed — hints the AI this displaces the target
+    }
+}
+
+#[derive(Debug)]
+pub struct ParagonShatterChainEffect;
+impl StableEffectType for ParagonShatterChainEffect {
+    fn apply(&self, sim: &mut StableSim<'_>, _rng_seed: u64, caster_id: usize, input: InputTargetV1) {
+        crate::logger::log(&format!("[PARAGON] Shatter Chain fired: caster={} target={}", caster_id, input.target_id));
+        // NOTE: single-stage Bind for now, not the two-stage Fear->Bind
+        // chain from the design — sequential apply_cc queuing behavior is
+        // unconfirmed, shipping the reliable version first.
+        let cc = CcV1 {
+            kind: CcKindV1::Bind.code(),
+            tick: 45, // ~0.75s placeholder
+            dx: 0,
+            dy: 0,
+            speed: 0,
+            target: 0,
+            name_buf: [0u8; BUFF_NAME_CAP],
+            name_len: 0,
+        };
+        sim.apply_cc(input.target_id, &cc);
+
+        let Some(atk) = sim.get_entity(caster_id).map(|e| e.stat().attack) else { return };
+        let amount = (atk as i64 * 90 / 100).max(0) as usize; // 90% AD, placeholder
+        sim.deal_damage_typed(caster_id, input.target_id, amount, DamageTypeV1::Ad, AttackTypeV1::Skill);
+        sim.play_view_effect("paragon_shatter_chain", caster_id, &InputTargetV1::target(input.target_id), 15000, 500, 30);
+    }
+
+    fn expected_damage(&self, caster_stat: &StatV1) -> (usize, usize) {
+        (caster_stat.attack * 90 / 100, 0)
+    }
+
+    fn expected_cc_time(&self) -> Option<usize> {
+        Some(45)
+    }
+}
+
+#[derive(Debug)]
+pub struct ParagonGodlessEffect;
+impl StableEffectType for ParagonGodlessEffect {
+    fn apply(&self, sim: &mut StableSim<'_>, _rng_seed: u64, caster_id: usize, _input: InputTargetV1) {
+        crate::logger::log(&format!("[PARAGON] Godless fired: caster={}", caster_id));
+        sim.play_view_effect("paragon_godless_aura", caster_id, &InputTargetV1::target(caster_id), 0, 0, 240);
+        // Immortal, CC-immune for the channel duration. damage_reflect
+        // deliberately omitted — field name/type not yet confirmed.
+        let mut buff = BuffV1::timed("paragon_godless", 240); // ~4s placeholder
+        buff.undying = true;
+        buff.cc_immune = true;
+        buff.attack_mult = 60; // assumed +60%, placeholder
+        crate::state::add_buff(sim, caster_id, &buff, true, false, 1, true);
+
+        // Register the DoT channel against every living enemy in range —
+        // driver.rs's on_match_tick applies the actual damage each tick.
+        let Some((team, (cx, cy))) = sim.get_entity(caster_id).map(|e| (e.team(), e.pos())) else { return };
+        let radius_sq: u64 = 9000 * 9000; // placeholder
+        let count = sim.entity_count();
+        let mut targets = Vec::new();
+        for i in 0..count {
+            if let Some(other) = sim.entity_at(i) {
+                if other.is_alive() && other.team() != team {
+                    let (ex, ey) = other.pos();
+                    let dx = ex as i64 - cx as i64;
+                    let dy = ey as i64 - cy as i64;
+                    if (dx * dx + dy * dy) as u64 <= radius_sq {
+                        targets.push(other.id());
+                    }
+                }
+            }
+        }
+        for target_id in targets {
+            crate::state::register_periodic(sim, caster_id, target_id, 1, 240, 20, true, false, 1, true);
+        }
+    }
+
+    fn expected_buff(&self, _caster_stat: &StatV1) -> Option<BuffV1> {
+        let mut buff = BuffV1::timed("paragon_godless", 240);
+        buff.undying = true;
+        buff.cc_immune = true;
+        Some(buff)
+    }
+}
+================================================================================
+END FILE: paragon.rs
+================================================================================
+
+================================================================================
+FILE: paragon_passive.rs
+FULL: C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\mods\my_mod\src\paragon_passive.rs
+BYTES: 2142
+================================================================================
+// --- Add to a new file, e.g. src/paragon.rs, or into native_effects/mod.rs
+// alongside everything else.
+
+use mod_api_stable::*;
+
+const ASCENSION_BUFF: &str = "paragon_ascension";
+const MAX_ASCENSION_STACKS: usize = 30;
+
+fn ascension_stack() -> BuffV1 {
+    let mut b = BuffV1::named(ASCENSION_BUFF); // permanent — stacks persist for the fight
+    b.attack_mult = 5; // +5% per stack, placeholder — tune once he's testable
+    b
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct ParagonPassive {
+    tick_accumulator: u32,
+}
+
+impl StablePassive for ParagonPassive {
+    fn clone_box(&self) -> Box<dyn StablePassive> {
+        Box::new(self.clone())
+    }
+
+    fn on_update(&mut self, sim: &mut StableSim<'_>, _rng_seed: u64, _player: usize, entity: usize) {
+        self.tick_accumulator += 1;
+        if self.tick_accumulator < 60 { return; } // once per assumed-second, throttled
+        self.tick_accumulator = 0;
+
+        let Some((team, (cx, cy))) = sim.get_entity(entity).map(|e| (e.team(), e.pos())) else { return };
+        let range_sq: u64 = 15000 * 15000; // "near an enemy" radius, placeholder
+
+        let mut near_enemy = false;
+        let count = sim.entity_count();
+        for i in 0..count {
+            if let Some(other) = sim.entity_at(i) {
+                if other.is_alive() && other.team() != team {
+                    let (ex, ey) = other.pos();
+                    let dx = ex as i64 - cx as i64;
+                    let dy = ey as i64 - cy as i64;
+                    if (dx * dx + dy * dy) as u64 <= range_sq {
+                        near_enemy = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if near_enemy {
+            sim.entity_stack_buff(entity, &ascension_stack(), MAX_ASCENSION_STACKS, false);
+        }
+    }
+
+    fn on_kill(&mut self, sim: &mut StableSim<'_>, _player: usize, entity: usize, _victim: usize) {
+        // Takedown burst: five stacks at once, rewarding real kills over passive farming.
+        for _ in 0..5 {
+            sim.entity_stack_buff(entity, &ascension_stack(), MAX_ASCENSION_STACKS, false);
+        }
+    }
+}
+================================================================================
+END FILE: paragon_passive.rs
+================================================================================
+
+================================================================================
+FILE: state.rs
+FULL: C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\mods\my_mod\src\state.rs
+BYTES: 50044
+================================================================================
+use mod_api_stable::{AttackTypeV1, BuffDurationV1, BuffV1, CcKindV1, CcV1, InputTargetV1, ProjectileInfoV1, SimCtxV1, SimOriginKindV1, StableSim, StatV1};
+use std::collections::{HashMap, HashSet};
+use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
+use std::sync::{Mutex, OnceLock};
+
+#[derive(Clone)]
+struct PersistentBuff {
+    buff: BuffV1,
+    expires_at: Option<usize>,
+}
+
+#[derive(Default)]
+struct PlayerState {
+    persistent_counters: HashMap<String, i64>,
+    flags: HashMap<String, bool>,
+    persistent_buffs: Vec<PersistentBuff>,
+    persistent_base_stat: Option<StatV1>,
+    persistent_modify_stats_stack: Option<usize>,
+    champion_key: Option<String>,
+    last_entity_id: Option<usize>,
+    was_alive: bool,
+    entity_missing: bool,
+    persistent_capture_count: usize,
+    restore_count: usize,
+    restored_buff_count: usize,
+    identity_change_count: usize,
+}
+
+pub type SimId = usize;
+type PlayerKey = (SimId, usize);
+type EntityKey = (SimId, usize);
+
+#[derive(Clone, Debug)]
+pub struct SpawnedUnit {
+    pub serial: u64,
+    pub owner_id: usize,
+    pub entity_id: usize,
+    pub name: String,
+    pub created_tick: u64,
+    pub attack_enabled: bool,
+    pub attack_gate_queued: bool,
+}
+
+#[derive(Default)]
+struct SpawnAggregationScope {
+    allow_duplicates: bool,
+    additional_multiplier: f32,
+    hit_counts: HashMap<usize, usize>,
+    current_multipliers: HashMap<usize, f32>,
+}
+
+static STATES: OnceLock<Mutex<HashMap<PlayerKey, PlayerState>>> = OnceLock::new();
+static ENTITY_OWNERS: OnceLock<Mutex<HashMap<EntityKey, usize>>> = OnceLock::new();
+static SPAWNED_UNITS: OnceLock<Mutex<Vec<(SimId, SpawnedUnit)>>> = OnceLock::new();
+static CANCELLED_SPAWNED_UNIT_EFFECTS: OnceLock<Mutex<Vec<(SimId, usize, usize)>>> = OnceLock::new();
+static SPAWN_AGGREGATION_SCOPES: OnceLock<Mutex<HashMap<SimId, Vec<SpawnAggregationScope>>>> = OnceLock::new();
+static NEXT_SPAWNED_UNIT_SERIAL: AtomicU64 = AtomicU64::new(1);
+static MISSED_OWNER_LOOKUPS: AtomicUsize = AtomicUsize::new(0);
+
+fn states() -> &'static Mutex<HashMap<PlayerKey, PlayerState>> {
+    STATES.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+fn entity_owners() -> &'static Mutex<HashMap<EntityKey, usize>> {
+    ENTITY_OWNERS.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+fn spawned_units_store() -> &'static Mutex<Vec<(SimId, SpawnedUnit)>> {
+    SPAWNED_UNITS.get_or_init(|| Mutex::new(Vec::new()))
+}
+
+fn cancelled_spawned_unit_effects() -> &'static Mutex<Vec<(SimId, usize, usize)>> {
+    CANCELLED_SPAWNED_UNIT_EFFECTS.get_or_init(|| Mutex::new(Vec::new()))
+}
+
+fn spawn_aggregation_scopes() -> &'static Mutex<HashMap<SimId, Vec<SpawnAggregationScope>>> {
+    SPAWN_AGGREGATION_SCOPES.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+/// Returns the opaque host-state pointer backing this StableSim as a numeric
+/// simulation-instance id. `SimCtxV1.state` is the host's actual per-sim
+/// context, so deterministic copies with identical seeds/ticks/player ids are
+/// still isolated from one another.
+///
+/// SAFETY / SDK COUPLING: StableSim does not publicly expose its raw SimCtxV1.
+/// In the current stable SDK its first field is `raw: *mut SimCtxV1`; Forge is
+/// compiled against that exact SDK source. If StableSim's private layout ever
+/// changes, this is the one helper that must be updated.
+#[inline]
+pub fn sim_instance_id(sim: &StableSim<'_>) -> SimId {
+    // StableSim currently contains one pointer-sized field plus PhantomData.
+    // Refuse to dereference a guessed layout if that ever stops being true.
+    if std::mem::size_of::<StableSim<'_>>() != std::mem::size_of::<*mut SimCtxV1>() {
+        return 0;
+    }
+    unsafe {
+        let raw_slot = sim as *const StableSim<'_> as *const *mut SimCtxV1;
+        let raw = *raw_slot;
+        if raw.is_null() { 0 } else { (*raw).state as SimId }
+    }
+}
+
+#[inline]
+fn player_key(sim: &StableSim<'_>, player_id: usize) -> PlayerKey {
+    (sim_instance_id(sim), player_id)
+}
+
+/// Resolves the entity's owning player at apply time and binds the champion
+/// identity. Used by Data champions whose native effects never go through a
+/// generated on_spawn, so their persistent state is registered lazily.
+pub fn register_entity(sim: &StableSim<'_>, entity_id: usize, champion_key: &str) {
+    let Some(player_id) = player_for_entity(sim, entity_id) else { return; };
+    init(sim, player_id, entity_id, champion_key);
+}
+
+/// Ensure match-persistent state exists for this player and bind the current
+/// generated champion identity to its runtime entity.
+pub fn init(sim: &StableSim<'_>, player_id: usize, entity_id: usize, champion_key: &str) {
+    let sim_id = sim_instance_id(sim);
+    {
+        let mut guard = states().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        let state = guard.entry((sim_id, player_id)).or_default();
+        if matches!(state.champion_key.as_deref(), Some(key) if key != champion_key) {
+            let identity_changes = state.identity_change_count.saturating_add(1);
+            *state = PlayerState::default();
+            state.identity_change_count = identity_changes;
+        }
+        state.champion_key = Some(champion_key.to_string());
+        state.last_entity_id = Some(entity_id);
+    }
+    entity_owners()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .insert((sim_id, entity_id), player_id);
+}
+
+/// Binds a champion entity to its owning player in the runtime owner map.
+/// Called by the match driver each tick so `player_for_entity` keeps resolving
+/// even when a native effect apply cannot enumerate players, and so the new
+/// champion entity is tracked the moment a player respawns. No identity or
+/// state is reset here; that is handled by `register_entity` / `init`.
+pub fn bind_entity(sim: &StableSim<'_>, player_id: usize, entity_id: usize) {
+    entity_owners()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .insert((sim_instance_id(sim), entity_id), player_id);
+}
+
+pub fn clear_player(sim: &StableSim<'_>, player_id: usize) {
+    let mut guard = states().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    guard.remove(&player_key(sim, player_id));
+    let sim_id = sim_instance_id(sim);
+    entity_owners()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .retain(|(stored_sim_id, _), owner| *stored_sim_id != sim_id || *owner != player_id);
+    spawned_units_store()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .retain(|(stored_sim_id, unit)| *stored_sim_id != sim_id || unit.owner_id != player_id);
+    cancelled_spawned_unit_effects()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .retain(|(stored_sim_id, stored_owner_id, _)| {
+            *stored_sim_id != sim_id || *stored_owner_id != player_id
+        });
+}
+
+/// Clears only runtime bookkeeping owned by the supplied simulation. Other
+/// simulations running concurrently in the same DLL are intentionally kept.
+pub fn clear_sim(sim: &StableSim<'_>) {
+    let sim_id = sim_instance_id(sim);
+    {
+        let mut guard = states().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        guard.retain(|(stored_sim_id, _), _| *stored_sim_id != sim_id);
+    }
+    {
+        let mut guard = periodics().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        guard.retain(|instance| instance.sim_id != sim_id);
+    }
+    {
+        let mut guard = entity_owners().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        guard.retain(|(stored_sim_id, _), _| *stored_sim_id != sim_id);
+    }
+    spawned_units_store()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .retain(|(stored_sim_id, _)| *stored_sim_id != sim_id);
+    cancelled_spawned_unit_effects()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .retain(|(stored_sim_id, _, _)| *stored_sim_id != sim_id);
+    spawn_aggregation_scopes()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .remove(&sim_id);
+    if let Some(store) = BUFF_VFX_BY_SIM.get() {
+        store.lock().unwrap_or_else(|p| p.into_inner()).remove(&sim_id);
+    }
+    if let Some(starts) = BUFF_VFX_STARTS.get() {
+        starts.lock().unwrap_or_else(|p| p.into_inner()).retain(|(sid, _, _), _| *sid != sim_id);
+    }
+    MISSED_OWNER_LOOKUPS.store(0, Ordering::Relaxed);
+}
+
+pub fn track_spawned_unit(
+    sim: &StableSim<'_>,
+    owner_id: usize,
+    entity_id: usize,
+    name: &str,
+    attack_enabled: bool,
+) -> u64 {
+    let sim_id = sim_instance_id(sim);
+    let serial = NEXT_SPAWNED_UNIT_SERIAL.fetch_add(1, Ordering::Relaxed);
+    let unit = SpawnedUnit {
+        serial,
+        owner_id,
+        entity_id,
+        name: name.to_string(),
+        created_tick: sim.tick() as u64,
+        attack_enabled,
+        attack_gate_queued: false,
+    };
+    spawned_units_store()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .push((sim_id, unit));
+    cancelled_spawned_unit_effects()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .retain(|(stored_sim_id, stored_owner_id, stored_entity_id)| {
+            !(*stored_sim_id == sim_id
+                && *stored_owner_id == owner_id
+                && *stored_entity_id == entity_id)
+        });
+    serial
+}
+
+pub fn set_spawn_attack_enabled(sim: &mut StableSim<'_>, entity_id: usize, enabled: bool) {
+    let sim_id = sim_instance_id(sim);
+    let mut should_queue = false;
+    let mut owner_id = entity_id;
+    {
+        let mut guard = spawned_units_store().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        if let Some((_, unit)) = guard.iter_mut().find(|(stored_sim_id, unit)| *stored_sim_id == sim_id && unit.entity_id == entity_id) {
+            unit.attack_enabled = enabled;
+            owner_id = unit.owner_id;
+            if !enabled && !unit.attack_gate_queued {
+                unit.attack_gate_queued = true;
+                should_queue = true;
+            }
+        }
+    }
+    if !enabled {
+        let gate = CcV1::of_kind(CcKindV1::BlockAttack, 2);
+        sim.apply_cc(entity_id, &gate);
+        if should_queue {
+            let _ = sim.queue_effect("__forge_spawn_attack_gate", AttackTypeV1::Skill, owner_id, &InputTargetV1::target(entity_id), 1);
+        }
+    }
+}
+
+pub fn maintain_spawn_attack_gate(sim: &mut StableSim<'_>, owner_id: usize, entity_id: usize) {
+    let sim_id = sim_instance_id(sim);
+    let should_continue = {
+        let mut guard = spawned_units_store().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        let Some((_, unit)) = guard.iter_mut().find(|(stored_sim_id, unit)| *stored_sim_id == sim_id && unit.owner_id == owner_id && unit.entity_id == entity_id) else { return; };
+        if unit.attack_enabled || sim.get_entity(entity_id).map(|entity| !entity.is_alive()).unwrap_or(true) {
+            unit.attack_gate_queued = false;
+            false
+        } else {
+            true
+        }
+    };
+    if should_continue {
+        let gate = CcV1::of_kind(CcKindV1::BlockAttack, 2);
+        sim.apply_cc(entity_id, &gate);
+        let _ = sim.queue_effect("__forge_spawn_attack_gate", AttackTypeV1::Skill, owner_id, &InputTargetV1::target(entity_id), 1);
+    }
+}
+
+pub fn begin_spawn_aggregation(sim: &StableSim<'_>, allow_duplicates: bool, additional_multiplier: f32) {
+    spawn_aggregation_scopes().lock().unwrap_or_else(|poisoned| poisoned.into_inner())
+        .entry(sim_instance_id(sim)).or_default().push(SpawnAggregationScope {
+            allow_duplicates,
+            additional_multiplier: additional_multiplier.max(0.0),
+            ..Default::default()
+        });
+}
+
+pub fn aggregate_spawn_targets(sim: &StableSim<'_>, targets: Vec<usize>) -> Vec<usize> {
+    let mut guard = spawn_aggregation_scopes().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    let Some(scope) = guard.get_mut(&sim_instance_id(sim)).and_then(|scopes| scopes.last_mut()) else { return targets; };
+    scope.current_multipliers.clear();
+    targets.into_iter().filter(|target_id| {
+        let count = scope.hit_counts.entry(*target_id).or_insert(0);
+        *count += 1;
+        let first = *count == 1;
+        scope.current_multipliers.insert(*target_id, if first { 1.0 } else { scope.additional_multiplier });
+        first || scope.allow_duplicates
+    }).collect()
+}
+
+pub fn spawn_effect_multiplier(sim: &StableSim<'_>, target_id: usize) -> f32 {
+    spawn_aggregation_scopes().lock().unwrap_or_else(|poisoned| poisoned.into_inner())
+        .get(&sim_instance_id(sim)).and_then(|scopes| scopes.last())
+        .and_then(|scope| scope.current_multipliers.get(&target_id).copied()).unwrap_or(1.0)
+}
+
+pub fn end_spawn_aggregation(sim: &StableSim<'_>) {
+    let sim_id = sim_instance_id(sim);
+    let mut guard = spawn_aggregation_scopes().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    if let Some(scopes) = guard.get_mut(&sim_id) {
+        scopes.pop();
+        if scopes.is_empty() { guard.remove(&sim_id); }
+    }
+}
+
+pub fn spawned_units(
+    sim: &StableSim<'_>,
+    owner_id: usize,
+    name: &str,
+) -> Vec<SpawnedUnit> {
+    let sim_id = sim_instance_id(sim);
+    let mut guard = spawned_units_store()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    guard.retain(|(stored_sim_id, unit)| {
+        *stored_sim_id != sim_id
+            || (sim
+                .get_entity(unit.entity_id)
+                .map(|entity| entity.is_alive())
+                .unwrap_or(false))
+    });
+    guard
+        .iter()
+        .filter(|(stored_sim_id, unit)| {
+            *stored_sim_id == sim_id && unit.owner_id == owner_id && unit.name == name
+        })
+        .map(|(_, unit)| unit.clone())
+        .collect()
+}
+
+pub fn spawned_unit_ids(sim: &StableSim<'_>, owner_id: usize, name: &str) -> Vec<usize> {
+    spawned_units(sim, owner_id, name)
+        .into_iter()
+        .map(|unit| unit.entity_id)
+        .collect()
+}
+
+pub fn forget_spawned_unit(sim: &StableSim<'_>, serial: u64) {
+    let sim_id = sim_instance_id(sim);
+    spawned_units_store()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .retain(|(stored_sim_id, unit)| *stored_sim_id != sim_id || unit.serial != serial);
+}
+
+pub fn spawned_unit_effect_is_active(
+    sim: &StableSim<'_>,
+    owner_id: usize,
+    entity_id: usize,
+) -> bool {
+    let sim_id = sim_instance_id(sim);
+    let cancelled = cancelled_spawned_unit_effects()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .iter()
+        .any(|(stored_sim_id, stored_owner_id, stored_entity_id)| {
+            *stored_sim_id == sim_id
+                && *stored_owner_id == owner_id
+                && *stored_entity_id == entity_id
+        });
+    if cancelled {
+        return false;
+    }
+    let tracked_unit = spawned_units_store()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .iter()
+        .find(|(stored_sim_id, unit)| {
+            *stored_sim_id == sim_id
+                && unit.owner_id == owner_id
+                && unit.entity_id == entity_id
+        })
+        .map(|(_, unit)| unit.clone());
+    let Some(tracked_unit) = tracked_unit else {
+        return false;
+    };
+    sim.get_entity(entity_id)
+        .map(|entity| entity.is_alive())
+        .unwrap_or(tracked_unit.created_tick == sim.tick() as u64)
+}
+
+pub fn queue_effect_if_active(
+    sim: &mut StableSim<'_>,
+    effect_name: &str,
+    attack_type: AttackTypeV1,
+    caster_id: usize,
+    target_id: usize,
+    delay_ticks: usize,
+) -> bool {
+    if !spawned_unit_effect_is_active(sim, caster_id, target_id) {
+        return false;
+    }
+    sim.queue_effect(
+        effect_name,
+        attack_type,
+        caster_id,
+        &InputTargetV1::target(target_id),
+        delay_ticks,
+    )
+}
+
+pub fn cancel_spawned_unit_effect(
+    sim: &mut StableSim<'_>,
+    owner_id: usize,
+    entity_id: usize,
+    destroy_spawn_on_trigger: bool,
+) {
+    let sim_id = sim_instance_id(sim);
+    let mut cancelled = cancelled_spawned_unit_effects()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    if !cancelled.iter().any(|(stored_sim_id, stored_owner_id, stored_entity_id)| {
+        *stored_sim_id == sim_id
+            && *stored_owner_id == owner_id
+            && *stored_entity_id == entity_id
+    }) {
+        cancelled.push((sim_id, owner_id, entity_id));
+    }
+    drop(cancelled);
+    if destroy_spawn_on_trigger {
+        let _ = sim.entity_set_hp(entity_id, 0);
+        spawned_units_store()
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
+            .retain(|(stored_sim_id, unit)| {
+                !(*stored_sim_id == sim_id
+                    && unit.owner_id == owner_id
+                    && unit.entity_id == entity_id)
+            });
+    }
+}
+
+pub fn consume_spawned_unit_target(
+    sim: &mut StableSim<'_>,
+    owner_id: usize,
+    entity_id: usize,
+    destroy_spawn_on_trigger: bool,
+) {
+    cancel_spawned_unit_effect(sim, owner_id, entity_id, destroy_spawn_on_trigger);
+}
+
+fn player_for_entity(sim: &StableSim<'_>, entity_id: usize) -> Option<usize> {
+    for index in 0..sim.player_count() {
+        let Some(player) = sim.player_at(index) else { continue; };
+        if player.champion().map(|champion| champion.id()) == Some(entity_id) {
+            return Some(player.id());
+        }
+    }
+    if let Some(player_id) = entity_owners()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .get(&(sim_instance_id(sim), entity_id))
+        .copied()
+    {
+        return Some(player_id);
+    }
+    let owner_entity_id = spawned_units_store()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .iter()
+        .find(|(stored_sim_id, unit)| {
+            *stored_sim_id == sim_instance_id(sim) && unit.entity_id == entity_id
+        })
+        .map(|(_, unit)| unit.owner_id);
+    owner_entity_id
+        .filter(|owner_id| *owner_id != entity_id)
+        .and_then(|owner_id| player_for_entity(sim, owner_id))
+}
+
+pub fn add_gold_for_entity(sim: &mut StableSim<'_>, entity_id: usize, delta: i64) -> bool {
+    player_for_entity(sim, entity_id)
+        .map(|player_id| sim.player_add_gold(player_id, delta))
+        .unwrap_or(false)
+}
+
+pub fn level_for_entity(sim: &StableSim<'_>, entity_id: usize) -> usize {
+    player_for_entity(sim, entity_id)
+        .and_then(|player_id| sim.get_player(player_id))
+        .map(|player| player.level())
+        .unwrap_or(1)
+}
+
+pub fn add_counter(sim: &StableSim<'_>, entity_id: usize, name: &str, delta: i64) {
+    let Some(player_id) = player_for_entity(sim, entity_id) else {
+        crate::diagnostic_log!(&format!(
+            "COUNTER_ADD_MISSED sim={} tick={} entity={} name={} delta={}",
+            sim_instance_id(sim), sim.tick(), entity_id, name, delta
+        ));
+        return;
+    };
+    let mut guard = states().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    let state = guard.entry(player_key(sim, player_id)).or_default();
+    let value = state
+        .persistent_counters
+        .entry(name.to_string())
+        .or_insert(0);
+    let before = *value;
+    *value = value.saturating_add(delta).max(0);
+    crate::diagnostic_log!(&format!(
+        "COUNTER_STATE sim={} tick={} player={} entity={} name={} before={} delta={} after={}",
+        sim_instance_id(sim), sim.tick(), player_id, entity_id, name, before, delta, *value
+    ));
+}
+
+/// Applies a persistent ModifyStats stack delta to the stored absolute stack.
+/// The stored value is authoritative once the first persistent application has
+/// been captured, so a respawn or other live stat reset cannot make a later
+/// `+3` application become `current_stack + 3` instead of `persisted + 3`.
+pub fn next_persistent_modify_stats_stack(
+    sim: &StableSim<'_>,
+    entity_id: usize,
+    current_stack: usize,
+    delta: i64,
+) -> usize {
+    let Some(player_id) = player_for_entity(sim, entity_id) else {
+        return (current_stack as i64).saturating_add(delta).max(0) as usize;
+    };
+    let mut guard = states().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    let state = guard.entry(player_key(sim, player_id)).or_default();
+    let base = state
+        .persistent_modify_stats_stack
+        .unwrap_or(current_stack) as i64;
+    let next = base.saturating_add(delta).max(0) as usize;
+    state.persistent_modify_stats_stack = Some(next);
+    next
+}
+
+pub fn reset_counter(sim: &StableSim<'_>, entity_id: usize, name: &str) {
+    let Some(player_id) = player_for_entity(sim, entity_id) else {
+        crate::diagnostic_log!(&format!(
+            "COUNTER_RESET_MISSED sim={} tick={} entity={} name={}",
+            sim_instance_id(sim), sim.tick(), entity_id, name
+        ));
+        return;
+    };
+    let mut guard = states().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    let before = guard
+        .get(&player_key(sim, player_id))
+        .and_then(|state| state.persistent_counters.get(name))
+        .copied()
+        .unwrap_or(0);
+    if let Some(state) = guard.get_mut(&player_key(sim, player_id)) {
+        state.persistent_counters.remove(name);
+    }
+    crate::diagnostic_log!(&format!(
+        "COUNTER_RESET sim={} tick={} player={} entity={} name={} before={} after=0",
+        sim_instance_id(sim), sim.tick(), player_id, entity_id, name, before
+    ));
+}
+
+pub fn set_flag(sim: &StableSim<'_>, entity_id: usize, name: &str, value: bool) {
+    let Some(player_id) = player_for_entity(sim, entity_id) else { return; };
+    let mut guard = states().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    guard
+        .entry(player_key(sim, player_id))
+        .or_default()
+        .flags
+        .insert(name.to_string(), value);
+}
+
+pub fn counter_at_least(sim: &StableSim<'_>, entity_id: usize, name: &str, count: usize) -> bool {
+    let Some(player_id) = player_for_entity(sim, entity_id) else { return false; };
+    let guard = states().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    guard
+        .get(&player_key(sim, player_id))
+        .and_then(|state| state.persistent_counters.get(name))
+        .copied()
+        .unwrap_or(0)
+        >= count as i64
+}
+
+/// Raw current value of a named counter (0 if never set). Unlike
+/// `counter_at_least`, this returns the actual stored number rather than a
+/// threshold check — used by Saitama's combo-tier scaling.
+pub fn counter_value(sim: &StableSim<'_>, entity_id: usize, name: &str) -> i64 {
+    let Some(player_id) = player_for_entity(sim, entity_id) else { return 0; };
+    let guard = states().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    guard
+        .get(&player_key(sim, player_id))
+        .and_then(|state| state.persistent_counters.get(name))
+        .copied()
+        .unwrap_or(0)
+}
+
+/// Scans the sim's kill log (the same `kill_log_count`/`kill_log_at` source
+/// `DealDamage`'s `trigger_effect_on_kill` reads from) for entries crediting
+/// this entity's player with a kill or an assist since the last time this
+/// counter was checked, and returns how many new credited entries were
+/// found. The kill log identifies participants by team + lane (not entity
+/// id), so this is a best-effort match: it cannot distinguish two players on
+/// the same team sharing a lane. Callers grant one stack of a buff per
+/// returned count.
+pub fn takedown_stack_delta(sim: &StableSim<'_>, entity_id: usize, counter_name: &str) -> u32 {
+    let Some(player_id) = player_for_entity(sim, entity_id) else { return 0; };
+    let Some(player) = sim.get_player(player_id) else { return 0; };
+    let Some(lane) = player.lane() else { return 0; };
+    let team = player.team();
+    let index_key = format!("{counter_name}__kill_log_index");
+    let last_index = {
+        let guard = states().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        guard
+            .get(&player_key(sim, player_id))
+            .and_then(|state| state.persistent_counters.get(&index_key))
+            .copied()
+            .unwrap_or(0)
+            .max(0) as usize
+    };
+    let total = sim.kill_log_count();
+    if total <= last_index {
+        return 0;
+    }
+    let mut stacks_gained = 0u32;
+    for index in last_index..total {
+        let Some(entry) = sim.kill_log_at(index) else { continue; };
+        if entry.killer_team != team {
+            continue;
+        }
+        let lane_code = lane.code();
+        let credited = entry.killer_position == lane_code
+            || (0..entry.assist_count as usize)
+                .any(|i| entry.assist_positions[i] == lane_code);
+        if credited {
+            stacks_gained += 1;
+        }
+    }
+    {
+        let mut guard = states().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        guard
+            .entry(player_key(sim, player_id))
+            .or_default()
+            .persistent_counters
+            .insert(index_key, total as i64);
+    }
+    stacks_gained
+}
+
+pub fn flag_is_set(sim: &StableSim<'_>, entity_id: usize, name: &str) -> bool {
+    let Some(player_id) = player_for_entity(sim, entity_id) else { return false; };
+    let guard = states().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    guard
+        .get(&player_key(sim, player_id))
+        .and_then(|state| state.flags.get(name))
+        .copied()
+        .unwrap_or(false)
+}
+
+/// Remembers the latest base-stat snapshot produced by a persistent
+/// ModifyStats effect. The snapshot is keyed by player rather than entity so
+/// it survives the champion entity being destroyed/replaced on death.
+pub fn remember_base_stat(sim: &StableSim<'_>, entity_id: usize, stat: &StatV1) {
+    let Some(player_id) = player_for_entity(sim, entity_id) else { return; };
+    let mut guard = states().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    let state = guard.entry(player_key(sim, player_id)).or_default();
+    state.persistent_base_stat = Some(*stat);
+    state.persistent_modify_stats_stack = Some(stat.stack);
+    state.last_entity_id = Some(entity_id);
+    state.was_alive = sim
+        .get_entity(entity_id)
+        .map(|entity| entity.is_alive())
+        .unwrap_or(false);
+    state.entity_missing = false;
+    state.persistent_capture_count = state.persistent_capture_count.saturating_add(1);
+}
+
+fn restore_persistent_base_stat(sim: &mut StableSim<'_>, player_id: usize, entity_id: usize) {
+    let stat = {
+        let guard = states().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        guard
+            .get(&player_key(sim, player_id))
+            .and_then(|state| state.persistent_base_stat)
+    };
+    if let Some(stat) = stat {
+        let _ = sim.entity_set_base_stat(entity_id, &stat);
+    }
+}
+
+pub fn refresh_persistent_state(sim: &mut StableSim<'_>, entity_id: usize) {
+    let Some(player_id) = player_for_entity(sim, entity_id) else { return; };
+    restore_persistent_buffs(sim, player_id, entity_id);
+    let current_stack = sim
+        .get_entity(entity_id)
+        .map(|entity| entity.stat().stack)
+        .unwrap_or(0);
+    let persisted_stack = {
+        let guard = states().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        guard
+            .get(&player_key(sim, player_id))
+            .and_then(|state| state.persistent_modify_stats_stack)
+    };
+    if persisted_stack.is_some_and(|stack| current_stack < stack) {
+        restore_persistent_base_stat(sim, player_id, entity_id);
+    }
+}
+
+/// Applies a buff normally and, when requested, remembers an identical copy
+/// against the champion owner's player id so it can be restored after death.
+/// Non-player entities simply receive the normal buff application.
+pub fn add_buff(
+    sim: &mut StableSim<'_>,
+    target_id: usize,
+    buff: &BuffV1,
+    persist_through_death: bool,
+    stackable: bool,
+    max_count: usize,
+    refresh_stacks: bool,
+) {
+    let player_id = if persist_through_death {
+        player_for_entity(sim, target_id)
+    } else {
+        None
+    };
+    if persist_through_death && player_id.is_none() {
+        MISSED_OWNER_LOOKUPS.fetch_add(1, Ordering::Relaxed);
+    }
+    let target_alive = sim
+        .get_entity(target_id)
+        .map(|entity| entity.is_alive())
+        .unwrap_or(false);
+    let now = sim.tick();
+
+    let effective_max = if stackable { max_count } else { 1 };
+    if stackable {
+        // Counts same-name stat buffs, optionally refreshes their remaining
+        // duration, and appends one more copy under the max_stacks cap -
+        // replacing the read-remove-re-add loop this used to hand-roll.
+        let _ = sim.entity_stack_buff(target_id, buff, max_count, refresh_stacks);
+    } else {
+        let live_count = sim.get_entity(target_id).map(|entity| {
+            (0..entity.buff_count())
+                .filter(|index| entity.buff_at(*index).map(|current| current.name() == buff.name()).unwrap_or(false))
+                .count()
+        }).unwrap_or(0);
+        if live_count > 0 {
+            // BuffV1 exposes no in-place duration mutation, so a timed buff
+            // at its cap of 1 is refreshed by recreating it; a permanent buff
+            // already applied has nothing to refresh.
+            if buff.duration_kind == BuffDurationV1::Time.code() {
+                let _ = sim.entity_remove_buff(target_id, buff.name());
+                sim.add_buff(target_id, buff);
+            }
+        } else {
+            sim.add_buff(target_id, buff);
+        }
+    }
+
+    let Some(player_id) = player_id else { return; };
+    let expires_at = if buff.duration_kind == BuffDurationV1::Time.code() {
+        Some(now.saturating_add(buff.duration_tick))
+    } else {
+        None
+    };
+    let mut guard = states().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    let state = guard.entry(player_key(sim, player_id)).or_default();
+    state
+        .persistent_buffs
+        .retain(|stored| stored.expires_at.map_or(true, |stored_expiry| stored_expiry > now));
+    let persisted_count = state
+        .persistent_buffs
+        .iter()
+        .filter(|stored| stored.buff.name() == buff.name())
+        .count();
+    let persisted_at_cap = effective_max != 0 && persisted_count >= effective_max;
+    if persisted_at_cap {
+        let mut kept = 0usize;
+        state.persistent_buffs.retain_mut(|stored| {
+            if stored.buff.name() != buff.name() {
+                return true;
+            }
+            if kept >= effective_max {
+                return false;
+            }
+            stored.buff = *buff;
+            stored.expires_at = expires_at;
+            kept = kept.saturating_add(1);
+            true
+        });
+    } else {
+        state.persistent_buffs.push(PersistentBuff {
+            buff: *buff,
+            expires_at,
+        });
+    }
+    state.last_entity_id = Some(target_id);
+    state.was_alive = target_alive;
+    state.entity_missing = false;
+    state.persistent_capture_count = state.persistent_capture_count.saturating_add(1);
+    drop(guard);
+    // The persisted copies are the source of truth for the stack count. If the
+    // target is missing stacks (e.g. it respawned since the last application),
+    // restore the shortfall now so the very next application heals the full
+    // stack back.
+    reconcile_buff_stacks(sim, target_id, player_id, buff.name());
+}
+
+/// Removes the live buff and forgets all persistent applications with the
+/// same name, preventing an explicitly removed buff from returning on respawn.
+pub fn remove_buff(sim: &mut StableSim<'_>, target_id: usize, name: &str) -> usize {
+    let removed = sim.entity_remove_buff(target_id, name);
+    if let Some(player_id) = player_for_entity(sim, target_id) {
+        let mut guard = states().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        if let Some(state) = guard.get_mut(&player_key(sim, player_id)) {
+            state.persistent_buffs.retain(|stored| stored.buff.name() != name);
+        }
+    }
+    removed
+}
+
+/// Changes the remaining lifetime of every live timed stack with this name.
+/// The complete BuffV1 values are copied before removal so all stats and stack
+/// copies survive. Durations reduced to zero are intentionally not reapplied.
+pub fn modify_internal_cooldown(
+    sim: &mut StableSim<'_>,
+    target_id: usize,
+    name: &str,
+    delta_ticks: i32,
+) {
+    let copies: Vec<BuffV1> = sim.get_entity(target_id).map(|entity| {
+        (0..entity.buff_count())
+            .filter_map(|index| entity.buff_at(index))
+            .filter(|buff| buff.name() == name && buff.duration_kind == BuffDurationV1::Time.code())
+            .collect()
+    }).unwrap_or_default();
+    if copies.is_empty() {
+        return;
+    }
+
+    let _ = sim.entity_remove_buff(target_id, name);
+    for mut buff in copies {
+        let next = if delta_ticks >= 0 {
+            buff.duration_tick.saturating_add(delta_ticks as usize)
+        } else {
+            buff.duration_tick.saturating_sub(delta_ticks.unsigned_abs() as usize)
+        };
+        if next > 0 {
+            buff.duration_tick = next;
+            sim.add_buff(target_id, &buff);
+        }
+    }
+}
+
+/// Makes the target's live stack count for `name` match the persisted count,
+/// re-adding the missing copies with their remaining durations. Idempotent:
+/// only the shortfall is applied, so overlapping restore and re-application
+/// paths never double-add. Persisted copies whose time window already passed
+/// are pruned first.
+fn reconcile_buff_stacks(sim: &mut StableSim<'_>, target_id: usize, player_id: usize, name: &str) {
+    let now = sim.tick();
+    let copies = {
+        let mut guard = states().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        let Some(state) = guard.get_mut(&player_key(sim, player_id)) else { return; };
+        state
+            .persistent_buffs
+            .retain(|stored| stored.expires_at.map_or(true, |expires_at| expires_at > now));
+        state
+            .persistent_buffs
+            .iter()
+            .filter(|stored| stored.buff.name() == name)
+            .cloned()
+            .collect::<Vec<_>>()
+    };
+
+    if copies.is_empty() {
+        return;
+    }
+
+    let mut live_count = 0usize;
+    if let Some(entity) = sim.get_entity(target_id) {
+        for index in 0..entity.buff_count() {
+            if let Some(buff) = entity.buff_at(index) {
+                if buff.name() == name {
+                    live_count += 1;
+                }
+            }
+        }
+    }
+
+    let missing = copies.len().saturating_sub(live_count);
+    if missing == 0 {
+        return;
+    }
+    let mut restored_count = 0usize;
+    for stored in copies.iter().skip(live_count) {
+        let mut buff = stored.buff;
+        if let Some(expires_at) = stored.expires_at {
+            buff.duration_kind = BuffDurationV1::Time.code();
+            buff.duration_tick = expires_at.saturating_sub(now);
+        }
+        sim.add_buff(target_id, &buff);
+        restored_count += 1;
+    }
+    if restored_count > 0 {
+        let mut guard = states().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        if let Some(state) = guard.get_mut(&player_key(sim, player_id)) {
+            state.restored_buff_count = state.restored_buff_count.saturating_add(restored_count);
+        }
+    }
+}
+
+fn restore_persistent_buffs(sim: &mut StableSim<'_>, player_id: usize, entity_id: usize) {
+    let names = {
+        let mut guard = states().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        let Some(state) = guard.get_mut(&player_key(sim, player_id)) else { return; };
+        let now = sim.tick();
+        state
+            .persistent_buffs
+            .retain(|stored| stored.expires_at.map_or(true, |expires_at| expires_at > now));
+        let mut names = Vec::new();
+        for stored in &state.persistent_buffs {
+            let name = stored.buff.name().to_string();
+            if !names.contains(&name) {
+                names.push(name);
+            }
+        }
+        names
+    };
+
+    for name in names {
+        reconcile_buff_stacks(sim, entity_id, player_id, &name);
+    }
+}
+
+/// Called by the generated match driver each tick. A dead -> alive transition
+/// (or an entity-id replacement while alive) restores the persistent base
+/// stat; while alive, persisted stacks are topped up every tick so buffs
+/// registered with `persist_through_death` come back after respawn even if the
+/// transition is missed or the game clears buffs a tick later.
+pub fn update_player_lifecycle(
+    sim: &mut StableSim<'_>,
+    player_id: usize,
+    entity_id: Option<usize>,
+    alive: bool,
+) {
+    let Some(entity_id) = entity_id else {
+        // Some hosts temporarily expose no champion entity while the player is
+        // dead/respawning. Remember the gap even if the host still reports the
+        // player as alive; the next entity must be treated as a respawn.
+        let mut guard = states().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        let state = guard.entry(player_key(sim, player_id)).or_default();
+        state.was_alive = alive;
+        state.entity_missing = true;
+        return;
+    };
+
+    let mut guard = states().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    let state = guard.entry(player_key(sim, player_id)).or_default();
+    state.was_alive = alive;
+    state.last_entity_id = Some(entity_id);
+    state.entity_missing = false;
+    drop(guard);
+    // Top up any persisted stacks the target is missing every live tick.
+    // Idempotent (only the shortfall is applied), so this self-heals respawns
+    // even when the transition above fired before the new entity was ready or
+    // the game cleared its buffs a tick later.
+    if alive {
+        restore_persistent_buffs(sim, player_id, entity_id);
+    }
+}
+
+/// Returns persistence counters for diagnostics: captures, restore events,
+/// restored buff applications, missed owner lookups, and champion identity
+/// changes.
+pub fn persistence_diagnostics(
+    sim: &StableSim<'_>,
+    player_id: usize,
+) -> (usize, usize, usize, usize, usize) {
+    let guard = states().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    let Some(state) = guard.get(&player_key(sim, player_id)) else {
+        return (0, 0, 0, MISSED_OWNER_LOOKUPS.load(Ordering::Relaxed), 0);
+    };
+    (
+        state.persistent_capture_count,
+        state.restore_count,
+        state.restored_buff_count,
+        MISSED_OWNER_LOOKUPS.load(Ordering::Relaxed),
+        state.identity_change_count,
+    )
+}
+
+#[derive(Clone)]
+pub struct PeriodicInstance {
+    sim_id: SimId,
+    pub source_id: usize,
+    pub target_id: usize,
+    pub effect_id: u64,
+    pub end_tick: u64,
+    pub next_tick: u64,
+    pub interval: u64,
+    pub stacks: usize,
+}
+
+static PERIODICS: OnceLock<Mutex<Vec<PeriodicInstance>>> = OnceLock::new();
+
+fn periodics() -> &'static Mutex<Vec<PeriodicInstance>> {
+    PERIODICS.get_or_init(|| Mutex::new(Vec::new()))
+}
+
+pub fn register_periodic(
+    sim: &StableSim<'_>,
+    source_id: usize,
+    target_id: usize,
+    effect_id: u64,
+    duration: u64,
+    interval: u64,
+    first_instant: bool,
+    can_stack: bool,
+    max_stacks: usize,
+    refresh: bool,
+) {
+    if duration == 0 || sim.get_entity(target_id).is_none() { return; }
+    let tick = sim.tick() as u64;
+    let sim_id = sim_instance_id(sim);
+    let mut guard = periodics().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    if let Some(instance) = guard.iter_mut().find(|instance| instance.sim_id == sim_id && instance.source_id == source_id && instance.target_id == target_id && instance.effect_id == effect_id) {
+        if can_stack {
+            if max_stacks == 0 || instance.stacks < max_stacks { instance.stacks = instance.stacks.saturating_add(1); }
+        }
+        if refresh { instance.end_tick = tick.saturating_add(duration); }
+        return;
+    }
+    guard.push(PeriodicInstance {
+        sim_id: sim_instance_id(sim),
+        source_id,
+        target_id,
+        effect_id,
+        end_tick: tick.saturating_add(duration),
+        next_tick: if first_instant { tick } else { tick.saturating_add(interval.max(1)) },
+        interval: interval.max(1),
+        stacks: 1,
+    });
+}
+
+pub fn register_delayed(sim: &StableSim<'_>, source_id: usize, target_id: usize, effect_id: u64, delay: u64) {
+    register_periodic(sim, source_id, target_id, effect_id, delay.saturating_add(1), delay.max(1), false, false, 1, false);
+}
+
+pub fn due_periodics(sim: &StableSim<'_>, source_id: usize, tick: u64) -> Vec<PeriodicInstance> {
+    let sim_id = sim_instance_id(sim);
+    let mut guard = periodics().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    // Only inspect entity ids belonging to this simulation. Entity ids from a
+    // concurrent sim are meaningless in the current StableSim.
+    guard.retain(|instance| {
+        instance.sim_id != sim_id
+            || (instance.end_tick > tick
+                && sim
+                    .get_entity(instance.target_id)
+                    .map(|entity| entity.is_alive())
+                    .unwrap_or(false))
+    });
+    guard
+        .iter()
+        .filter(|instance| {
+            instance.sim_id == sim_id
+                && instance.source_id == source_id
+                && instance.next_tick <= tick
+        })
+        .cloned()
+        .collect()
+}
+
+pub fn advance_periodic(sim: &StableSim<'_>, source_id: usize, target_id: usize, effect_id: u64) {
+    let sim_id = sim_instance_id(sim);
+    let mut guard = periodics().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    if let Some(instance) = guard.iter_mut().find(|instance| instance.sim_id == sim_id && instance.source_id == source_id && instance.target_id == target_id && instance.effect_id == effect_id) {
+        instance.next_tick = instance.next_tick.saturating_add(instance.interval);
+    }
+}
+
+pub fn clear_periodics_for_source(sim: &StableSim<'_>, source_id: usize) {
+    let sim_id = sim_instance_id(sim);
+    let mut guard = periodics().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    guard.retain(|instance| instance.sim_id != sim_id || instance.source_id != source_id);
+}
+
+pub fn clear_periodics(sim: &StableSim<'_>) {
+    let sim_id = sim_instance_id(sim);
+    let mut guard = periodics().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    guard.retain(|instance| instance.sim_id != sim_id);
+}
+
+#[derive(Clone)]
+pub struct BuffVfxSnapshot {
+    pub binding_name: String,
+    pub entity_id: usize,
+    pub x: f32,
+    pub y: f32,
+    pub elapsed_ticks: usize,
+}
+
+static BUFF_VFX_BY_SIM: OnceLock<Mutex<HashMap<SimId, Vec<BuffVfxSnapshot>>>> = OnceLock::new();
+static BUFF_VFX_STARTS: OnceLock<Mutex<HashMap<(SimId, usize, String), usize>>> = OnceLock::new();
+static LATEST_BUFF_VFX_SIM: AtomicUsize = AtomicUsize::new(0);
+
+fn buff_vfx_by_sim() -> &'static Mutex<HashMap<SimId, Vec<BuffVfxSnapshot>>> {
+    BUFF_VFX_BY_SIM.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+fn buff_vfx_starts() -> &'static Mutex<HashMap<(SimId, usize, String), usize>> {
+    BUFF_VFX_STARTS.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+pub fn refresh_buff_visuals(sim: &StableSim<'_>) {
+    let sim_id = sim_instance_id(sim);
+    let now = sim.tick();
+    let mut current = HashSet::<(usize, String)>::new();
+    let mut snapshots = Vec::new();
+    let mut starts = buff_vfx_starts().lock().unwrap_or_else(|p| p.into_inner());
+
+    for index in 0..sim.entity_count() {
+        let Some(entity) = sim.entity_at(index) else { continue; };
+        if !entity.is_alive() { continue; }
+        let entity_id = entity.id();
+        let pos = entity.pos();
+        let mut names = HashSet::<String>::new();
+        for buff_index in 0..entity.buff_count() {
+            let Some(buff) = entity.buff_at(buff_index) else { continue; };
+            let name = buff.name();
+            if !crate::buff_visuals::binding_exists(name) || !names.insert(name.to_string()) {
+                continue;
+            }
+            let key = (sim_id, entity_id, name.to_string());
+            let started = *starts.entry(key).or_insert(now);
+            current.insert((entity_id, name.to_string()));
+            snapshots.push(BuffVfxSnapshot {
+                binding_name: name.to_string(),
+                entity_id,
+                x: pos.0 as f32 / 1000.0,
+                y: pos.1 as f32 / 1000.0,
+                elapsed_ticks: now.saturating_sub(started),
+            });
+        }
+    }
+
+    starts.retain(|(sid, entity_id, name), _| {
+        *sid != sim_id || current.contains(&(*entity_id, name.clone()))
+    });
+    drop(starts);
+
+    buff_vfx_by_sim()
+        .lock()
+        .unwrap_or_else(|p| p.into_inner())
+        .insert(sim_id, snapshots);
+    // The client SDK does not expose the rendered SimId. Keep snapshots isolated
+    // and publish only one complete simulation at a time as the current candidate.
+    LATEST_BUFF_VFX_SIM.store(sim_id, Ordering::Release);
+}
+
+pub fn buff_vfx_snapshot() -> Vec<BuffVfxSnapshot> {
+    let sim_id = LATEST_BUFF_VFX_SIM.load(Ordering::Acquire);
+    buff_vfx_by_sim()
+        .lock()
+        .unwrap_or_else(|p| p.into_inner())
+        .get(&sim_id)
+        .cloned()
+        .unwrap_or_default()
+}
+
+struct ProjectileViewEffect {
+    sim_id: SimId,
+    caster_id: usize,
+    name: String,
+    effect_name: String,
+    radius: u64,
+    last_x: u64,
+    last_y: u64,
+}
+
+static PROJECTILE_VIEW_EFFECTS: OnceLock<Mutex<HashMap<usize, ProjectileViewEffect>>> = OnceLock::new();
+static NEXT_PROJECTILE_VIEW_EFFECT_ID: AtomicUsize = AtomicUsize::new(1);
+
+fn projectile_view_effects() -> &'static Mutex<HashMap<usize, ProjectileViewEffect>> {
+    PROJECTILE_VIEW_EFFECTS.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+/// Presentation-only work (tracking a view effect along a projectile's path)
+/// should never run in background server pre-simulation, which replays the
+/// same ability code many times over for odds calculation with nothing on
+/// screen. Only a sim actually being watched live is worth the per-tick cost.
+fn is_presentation_viable(sim: &StableSim<'_>) -> bool {
+    match sim.sim_origin() {
+        Some(origin) => {
+            origin.kind == SimOriginKindV1::ClientMatchView.code()
+                || origin.kind == SimOriginKindV1::ClientSpectate.code()
+                || origin.kind == SimOriginKindV1::ClientReplay.code()
+        }
+        None => false,
+    }
+}
+
+#[allow(dead_code)]
+pub fn start_projectile_view_effect(
+    sim: &StableSim<'_>,
+    caster_id: usize,
+    name: &str,
+    x: u64,
+    y: u64,
+    effect_name: &str,
+    radius: u64,
+    _tick: usize,
+) {
+    if effect_name.trim().is_empty() || !is_presentation_viable(sim) {
+        return;
+    }
+    let sim_id = sim_instance_id(sim);
+    let mut guard = projectile_view_effects().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    // A caster that fires this same projectile again before the previous cast's
+    // vfx timed out (rapid attacks, low cooldowns) would otherwise leave two
+    // trackers racing to claim the same live projectile by nearest-position
+    // guesswork (the SDK exposes no stable per-projectile id to match on
+    // instead). Superseding the earlier tracker keeps that guesswork limited
+    // to one candidate at a time.
+    guard.retain(|_, vfx| vfx.sim_id != sim_id || vfx.caster_id != caster_id || vfx.name != name);
+    let launch_id = NEXT_PROJECTILE_VIEW_EFFECT_ID.fetch_add(1, Ordering::Relaxed);
+    guard.insert(launch_id, ProjectileViewEffect {
+        sim_id, caster_id, name: name.to_string(), effect_name: effect_name.to_string(),
+        radius, last_x: x, last_y: y,
+    });
+}
+
+/// Clears only the tracked view effects owned by the supplied simulation.
+/// Other simulations running concurrently in the same DLL (background
+/// odds-calculation replays alongside a live spectated match, for example)
+/// are intentionally kept — see `clear_sim`.
+#[allow(dead_code)]
+pub fn clear_projectile_view_effects(sim: &StableSim<'_>) {
+    let sim_id = sim_instance_id(sim);
+    let mut guard = projectile_view_effects().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    guard.retain(|_, vfx| vfx.sim_id != sim_id);
+}
+
+#[allow(dead_code)]
+pub fn update_projectile_view_effects(sim: &mut StableSim<'_>) {
+    // Presentation-only work; see `is_presentation_viable`. Background sims
+    // never insert trackers either, but skipping here too keeps this function
+    // from ever attributing another sim's projectiles to a live one — the
+    // guard below only matches entries already scoped to `sim`, but there is
+    // no reason to pay the per-tick scan cost when nothing is watching.
+    if !is_presentation_viable(sim) {
+        return;
+    }
+    let sim_id = sim_instance_id(sim);
+    let mut guard = projectile_view_effects().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    if guard.is_empty() {
+        return;
+    }
+    let mut ended = Vec::new();
+    for (launch_id, vfx) in guard.iter_mut() {
+        if vfx.sim_id != sim_id {
+            continue;
+        }
+        let mut best: Option<(u64, ProjectileInfoV1)> = None;
+        for index in 0..sim.projectile_count() {
+            let Some(info) = sim.projectile_at(index) else { continue; };
+            if info.caster_id != vfx.caster_id { continue; }
+            let distance = info.x.abs_diff(vfx.last_x).saturating_mul(info.x.abs_diff(vfx.last_x))
+                .saturating_add(info.y.abs_diff(vfx.last_y).saturating_mul(info.y.abs_diff(vfx.last_y)));
+            if best.as_ref().map_or(true, |(current, _)| distance < *current) { best = Some((distance, info)); }
+        }
+        match best {
+            Some((_, info)) if !info.is_end => {
+                vfx.last_x = info.x;
+                vfx.last_y = info.y;
+                let target = InputTargetV1::pos(vfx.last_x, vfx.last_y);
+                let _ = sim.play_view_effect(&vfx.effect_name, vfx.caster_id, &target, 0, vfx.radius, 1);
+            }
+            _ => ended.push(*launch_id),
+        }
+    }
+    for launch_id in ended { guard.remove(&launch_id); }
+}
+================================================================================
+END FILE: state.rs
+================================================================================
+
+================================================================================
+FILE: sunwue.rs
+FULL: C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\mods\my_mod\src\sunwue.rs
+BYTES: 15877
+================================================================================
+// src/sunwue.rs - Sun Wue sword cultivator
+// FIXES in this pass:
+//   1. Skill1 (Sword Qi) now actually branches by realm tier, matching the
+//      champion.i18n tooltip (Golden Core = line AoE 3, Nascent Soul = circle AoE).
+//      Previously this was a flat single-target hit at every tier -- the tooltip
+//      was never backed by real logic.
+//   2. Realm tiers are now three DISTINCT named buffs (sunwue_foundation /
+//      sunwue_golden_core / sunwue_nascent_soul) instead of one buff name
+//      ("sunwue_breakthrough") reapplied identically at 30/60/100 stacks --
+//      previously nothing could tell which realm you were actually in, so
+//      Skill1 had no way to check tier even if it had wanted to.
+//   3. Nascent Soul's undying window is now actually applied (it was promised
+//      in the tooltip but never implemented at all).
+//   4. skill's range (was 15000, identical to attack's 15000) is bumped to
+//      19000 and cooltime brought down slightly, so it has a real reach/tempo
+//      advantage over autoattacking -- likely why the AI was never observed
+//      using it. See the chat writeup for the dmg-per-cooldown math; if it's
+//      still never cast after this, the remaining suspect is the selection
+//      logic in driver.rs, which I haven't seen.
+use mod_api_stable::*;
+
+pub struct SunWue;
+
+impl StableChampion for SunWue {
+    fn id(&self) -> String { "sunwue".to_string() }
+    fn name(&self) -> String { "Sun Wue".to_string() }
+    fn category(&self) -> ChampionCategoryV1 { ChampionCategoryV1::Melee }
+    fn tags(&self) -> Vec<ChampionTagV1> { vec![ChampionTagV1::Ad, ChampionTagV1::Melee, ChampionTagV1::Cc] }
+    fn stat(&self) -> StatV1 {
+        StatV1 { attack: 85, magic_power: 0, hp: 950, defence: 25, magic_resistance: 20, move_speed: 1050, hp_regen: 1, stack: 0, crit_chance: 10 }
+    }
+    fn growth(&self) -> StatV1 {
+        StatV1 { attack: 16, magic_power: 0, hp: 90, defence: 4, magic_resistance: 3, move_speed: 4, hp_regen: 1, stack: 0, crit_chance: 0 }
+    }
+    fn attack(&self) -> Box<dyn StableAction> { Box::new(SunWueAttack) }
+    fn skill(&self) -> Box<dyn StableAction> { Box::new(SunWueSkill) }
+    fn skill2(&self) -> Box<dyn StableAction> { Box::new(SunWueSkill2) }
+    fn ult(&self) -> Option<Box<dyn StableAction>> { Some(Box::new(SunWueUlt)) }
+    fn passive(&self) -> Option<Box<dyn StablePassive>> { Some(Box::new(SunWuePassive::default())) }
+}
+
+// ---------------------------------------------------------------------
+// Realm tier buff names -- now distinct per tier (see fix #2 above).
+// ---------------------------------------------------------------------
+pub const TIER_FOUNDATION: &str = "sunwue_foundation";
+pub const TIER_GOLDEN_CORE: &str = "sunwue_golden_core";
+pub const TIER_NASCENT_SOUL: &str = "sunwue_nascent_soul";
+
+#[derive(Clone)] struct SunWueAttack;
+impl StableAction for SunWueAttack {
+    fn clone_box(&self) -> Box<dyn StableAction> { Box::new(self.clone()) }
+    fn action_name(&self) -> String { "attack".to_string() }
+    fn duration(&self) -> usize { 20 }
+    fn cooltime(&self, _s: &StatV1, _l: usize) -> usize { 50 }
+    fn casting_target(&self) -> CastingTargetV1 { CastingTargetV1::Enemy }
+    fn effect(&self) -> Option<StableEffectSpec> {
+        Some(StableEffectSpec { range: 15000, growth_range: 0, start_timing: 6, casting: CastingTypeV1::Targeting, target: CastingTargetV1::Enemy, attack_type: AttackTypeV1::BaseAttack, effect: Box::new(SunWueAttackEffect) })
+    }
+}
+
+#[derive(Clone)] struct SunWueSkill;
+impl StableAction for SunWueSkill {
+    fn clone_box(&self) -> Box<dyn StableAction> { Box::new(self.clone()) }
+    fn action_name(&self) -> String { "skill".to_string() }
+    fn duration(&self) -> usize { 24 }
+    // was 160 -- lowered so its dmg-per-cooldown stops losing to plain autoattacking
+    fn cooltime(&self, _s: &StatV1, _l: usize) -> usize { 120 }
+    fn casting_target(&self) -> CastingTargetV1 { CastingTargetV1::Enemy }
+    fn effect(&self) -> Option<StableEffectSpec> {
+        // was range: 15000 (identical to attack, zero reach advantage)
+        Some(StableEffectSpec { range: 19000, growth_range: 0, start_timing: 5, casting: CastingTypeV1::Targeting, target: CastingTargetV1::Enemy, attack_type: AttackTypeV1::Skill, effect: Box::new(SunWueSwordQiEffect) })
+    }
+}
+
+#[derive(Clone)] struct SunWueSkill2;
+impl StableAction for SunWueSkill2 {
+    fn clone_box(&self) -> Box<dyn StableAction> { Box::new(self.clone()) }
+    fn action_name(&self) -> String { "skill2".to_string() }
+    fn duration(&self) -> usize { 30 }
+    fn cooltime(&self, _s: &StatV1, _l: usize) -> usize { 200 }
+    // NOTE: left as-is per your original file, but flagging: casting_type None +
+    // casting_target Enemy is the exact combo your own project docs (landmine #14)
+    // recorded as "silently uncastable." SunWueBarrierEffect::apply never reads
+    // `_input` at all (it's a pure self-buff), so casting_target should almost
+    // certainly be Self/None here rather than Enemy -- worth testing in isolation.
+    fn casting_target(&self) -> CastingTargetV1 { CastingTargetV1::Enemy }
+    fn effect(&self) -> Option<StableEffectSpec> {
+        Some(StableEffectSpec { range: 9000, growth_range: 0, start_timing: 6, casting: CastingTypeV1::None, target: CastingTargetV1::Enemy, attack_type: AttackTypeV1::Skill, effect: Box::new(SunWueBarrierEffect) })
+    }
+}
+
+#[derive(Clone)] struct SunWueUlt;
+impl StableAction for SunWueUlt {
+    fn clone_box(&self) -> Box<dyn StableAction> { Box::new(self.clone()) }
+    fn action_name(&self) -> String { "ult".to_string() }
+    fn duration(&self) -> usize { 40 }
+    fn cooltime(&self, _s: &StatV1, _l: usize) -> usize { 1200 }
+    // Same landmine #14 shape as skill2 -- SunWueMyriadSlamSelf also never reads
+    // `_input`. Flagging, not changing, since I don't know if you've already
+    // confirmed this one casts fine in practice.
+    fn casting_target(&self) -> CastingTargetV1 { CastingTargetV1::Enemy }
+    fn effect(&self) -> Option<StableEffectSpec> {
+        Some(StableEffectSpec { range: 9000, growth_range: 0, start_timing: 8, casting: CastingTypeV1::None, target: CastingTargetV1::Enemy, attack_type: AttackTypeV1::Skill, effect: Box::new(SunWueMyriadSlamSelf) })
+    }
+}
+
+#[derive(Debug)] struct SunWueAttackEffect;
+impl StableEffectType for SunWueAttackEffect {
+    fn apply(&self, sim: &mut StableSim<'_>, _rng: u64, caster: usize, input: InputTargetV1) {
+        let atk = sim.get_entity(caster).map(|e| e.stat().attack).unwrap_or(85);
+        sim.deal_damage_typed(caster, input.target_id, atk, DamageTypeV1::Ad, AttackTypeV1::BaseAttack);
+    }
+    fn expected_damage(&self, s: &StatV1) -> (usize, usize) { (s.attack, 0) }
+}
+
+/// Sword Qi Slash -- NOW actually branches by realm tier (fix #1).
+/// Qi Condensation / Foundation: single target, 140% AD (unchanged from before).
+/// Golden Core: line AoE, up to 3 enemies, 160% AD each.
+/// Nascent Soul: circular AoE around self, 180% AD each.
+#[derive(Debug)] pub struct SunWueSwordQiEffect;
+impl StableEffectType for SunWueSwordQiEffect {
+    fn apply(&self, sim: &mut StableSim<'_>, _rng: u64, caster: usize, input: InputTargetV1) {
+        let atk = sim.get_entity(caster).map(|e| e.stat().attack).unwrap_or(85);
+
+        if crate::helpers::has_buff(sim, caster, TIER_NASCENT_SOUL) {
+            circular_slash(sim, caster, atk);
+        } else if crate::helpers::has_buff(sim, caster, TIER_GOLDEN_CORE) {
+            line_slash(sim, caster, input.target_id, atk);
+        } else {
+            let dmg = atk * 140 / 100;
+            sim.deal_damage_typed(caster, input.target_id, dmg, DamageTypeV1::Ad, AttackTypeV1::Skill);
+            sim.play_view_effect("sunwue_sword_qi", caster, &InputTargetV1::target(input.target_id), 45000, 500, 35);
+        }
+    }
+    fn expected_damage(&self, s: &StatV1) -> (usize, usize) { (s.attack * 160 / 100, 0) }
+}
+
+fn circular_slash(sim: &mut StableSim<'_>, caster: usize, atk: usize) {
+    let Some((team, (cx, cy))) = sim.get_entity(caster).map(|e| (e.team(), e.pos())) else { return };
+    let radius_sq: u64 = 12000 * 12000;
+    let dmg = atk * 180 / 100;
+    for i in 0..sim.entity_count() {
+        if let Some(other) = sim.entity_at(i) {
+            if other.is_alive() && other.team() != team {
+                let (ex, ey) = other.pos();
+                let dx = ex as i64 - cx as i64;
+                let dy = ey as i64 - cy as i64;
+                if (dx * dx + dy * dy) as u64 <= radius_sq {
+                    sim.deal_damage_typed(caster, other.id(), dmg, DamageTypeV1::Ad, AttackTypeV1::Skill);
+                }
+            }
+        }
+    }
+    sim.play_view_effect("sunwue_sword_qi_circle", caster, &InputTargetV1::target(caster), 0, 0, 20);
+}
+
+fn line_slash(sim: &mut StableSim<'_>, caster: usize, target_id: usize, atk: usize) {
+    let Some((team, (cx, cy))) = sim.get_entity(caster).map(|e| (e.team(), e.pos())) else { return };
+    let Some((tx, ty)) = sim.get_entity(target_id).map(|e| e.pos()) else { return };
+    let dmg = atk * 160 / 100;
+
+    let (dirx, diry) = ((tx as i64 - cx as i64) as f64, (ty as i64 - cy as i64) as f64);
+    let len = (dirx * dirx + diry * diry).sqrt().max(1.0);
+    let (ux, uy) = (dirx / len, diry / len);
+    const CORRIDOR_HALF_WIDTH: f64 = 2000.0;
+    const OVERSHOOT: f64 = 3000.0;
+
+    let mut hit = 0;
+    for i in 0..sim.entity_count() {
+        if hit >= 3 { break; }
+        if let Some(other) = sim.entity_at(i) {
+            if other.is_alive() && other.team() != team {
+                let (ex, ey) = other.pos();
+                let rx = (ex as i64 - cx as i64) as f64;
+                let ry = (ey as i64 - cy as i64) as f64;
+                let proj = rx * ux + ry * uy;
+                let perp = (rx * uy - ry * ux).abs();
+                if proj >= 0.0 && proj <= len + OVERSHOOT && perp <= CORRIDOR_HALF_WIDTH {
+                    sim.deal_damage_typed(caster, other.id(), dmg, DamageTypeV1::Ad, AttackTypeV1::Skill);
+                    hit += 1;
+                }
+            }
+        }
+    }
+    sim.play_view_effect("sunwue_sword_qi_line", caster, &InputTargetV1::target(target_id), 45000, 500, 20);
+}
+
+#[derive(Debug)] pub struct SunWueBarrierEffect;
+impl StableEffectType for SunWueBarrierEffect {
+    fn apply(&self, sim: &mut StableSim<'_>, _rng: u64, caster: usize, _input: InputTargetV1) {
+        let mut buff = BuffV1::timed("sunwue_barrier", 180);
+        buff.defence = 30;
+        buff.magic_resistance = 30;
+        buff.cc_immune = true;
+        crate::state::add_buff(sim, caster, &buff, false, false, 1, true);
+        sim.play_view_effect("sunwue_barrier", caster, &InputTargetV1::target(caster), 0, 0, 180);
+    }
+    fn expected_buff(&self, _s: &StatV1) -> Option<BuffV1> {
+        let mut b = BuffV1::timed("sunwue_barrier", 180);
+        b.defence = 30;
+        Some(b)
+    }
+}
+
+#[derive(Debug)] pub struct SunWueMyriadSlamSelf;
+impl StableEffectType for SunWueMyriadSlamSelf {
+    fn apply(&self, sim: &mut StableSim<'_>, _rng: u64, caster: usize, _input: InputTargetV1) {
+        let atk = sim.get_entity(caster).map(|e| e.stat().attack).unwrap_or(85);
+        let Some((team, (cx, cy))) = sim.get_entity(caster).map(|e| (e.team(), e.pos())) else { return };
+        let radius_sq: u64 = 9000 * 9000;
+        let mut targets = Vec::new();
+        for i in 0..sim.entity_count() {
+            if let Some(other) = sim.entity_at(i) {
+                if other.is_alive() && other.team() != team {
+                    let (ex, ey) = other.pos();
+                    let dx = ex as i64 - cx as i64;
+                    let dy = ey as i64 - cy as i64;
+                    if (dx * dx + dy * dy) as u64 <= radius_sq {
+                        targets.push(other.id());
+                    }
+                }
+            }
+        }
+        // was a manual buff_at() scan for a name that no longer exists after fix #2
+        // -- now just checks the real tier buff directly.
+        let has_nascent = crate::helpers::has_buff(sim, caster, TIER_NASCENT_SOUL);
+        let ratio = if has_nascent { 600 } else { 300 };
+        let dmg = atk * ratio / 100;
+        for tid in targets {
+            sim.deal_damage_typed(caster, tid, dmg, DamageTypeV1::Ad, AttackTypeV1::Skill);
+        }
+        sim.play_view_effect("sunwue_myriad_slam", caster, &InputTargetV1::target(caster), 0, 800, 30);
+        let mut buff = BuffV1::timed("sunwue_slam_buff", 180);
+        buff.attack_mult = 30;
+        crate::state::add_buff(sim, caster, &buff, false, false, 1, true);
+    }
+    fn expected_damage(&self, s: &StatV1) -> (usize, usize) { (s.attack * 300 / 100, 0) }
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct SunWuePassive { stacks: usize }
+
+impl StablePassive for SunWuePassive {
+    fn clone_box(&self) -> Box<dyn StablePassive> { Box::new(self.clone()) }
+
+    fn on_update(&mut self, sim: &mut StableSim<'_>, _rng: u64, _player: usize, entity: usize) {
+        let Some((team, (cx, cy))) = sim.get_entity(entity).map(|e| (e.team(), e.pos())) else { return };
+        let mut near = false;
+        for i in 0..sim.entity_count() {
+            if let Some(other) = sim.entity_at(i) {
+                if other.is_alive() && other.team() != team {
+                    let (ex, ey) = other.pos();
+                    let dx = ex as i64 - cx as i64;
+                    let dy = ey as i64 - cy as i64;
+                    if (dx * dx + dy * dy) as u64 <= 15000 * 15000 { near = true; break; }
+                }
+            }
+        }
+        // was `% 60 == 0` -- tooltip promises "1 Qi stack/sec"; at 30 ticks/sec
+        // that's every 30 ticks, not 60 (which was giving 1 stack every 2s).
+        if near && sim.tick() % 30 == 0 {
+            self.stacks += 1;
+            grant_qi(sim, entity, 1);
+            check_breakthrough(sim, entity, self.stacks);
+        }
+    }
+
+    fn on_kill(&mut self, sim: &mut StableSim<'_>, _p: usize, entity: usize, _victim: usize) {
+        grant_qi(sim, entity, 5);
+        self.stacks += 5;
+        check_breakthrough(sim, entity, self.stacks);
+    }
+}
+
+fn grant_qi(sim: &mut StableSim<'_>, entity: usize, amount: usize) {
+    for _ in 0..amount {
+        let mut b = BuffV1::named("sunwue_qi");
+        b.attack_mult = 2;
+        sim.entity_stack_buff(entity, &b, 100, false);
+    }
+}
+
+/// Applies the correct DISTINCT tier buff the moment `stacks` crosses each
+/// threshold (fix #2/#3). Each tier is its own named buff so Skill1/ult can
+/// actually tell which realm the caster is in via `crate::helpers::has_buff`.
+fn check_breakthrough(sim: &mut StableSim<'_>, entity: usize, stacks: usize) {
+    if stacks >= 100 && !crate::helpers::has_buff(sim, entity, TIER_NASCENT_SOUL) {
+        let mut b = BuffV1::timed(TIER_NASCENT_SOUL, 999_999); // effectively permanent for the match
+        b.attack_mult = 80;
+        b.defence = 30;
+        b.cc_immune = true;
+        crate::state::add_buff(sim, entity, &b, true, false, 1, true);
+
+        // "first death immunity 3s" -- promised in the tooltip, never implemented before.
+        // NEEDS VERIFICATION: copy whatever field Paragon's Godless undying buff
+        // actually used rather than guessing a name here.
+        let mut undying = BuffV1::timed("sunwue_undying", 90); // 3s @ 30 ticks/sec
+        crate::state::add_buff(sim, entity, &undying, true, false, 1, true);
+    } else if stacks >= 60 && !crate::helpers::has_buff(sim, entity, TIER_GOLDEN_CORE) {
+        let mut b = BuffV1::timed(TIER_GOLDEN_CORE, 999_999);
+        b.attack_mult = 40;
+        crate::state::add_buff(sim, entity, &b, true, false, 1, true);
+    } else if stacks >= 30 && !crate::helpers::has_buff(sim, entity, TIER_FOUNDATION) {
+        let mut b = BuffV1::timed(TIER_FOUNDATION, 999_999);
+        b.attack_mult = 20;
+        b.move_speed_mult = 10;
+        crate::state::add_buff(sim, entity, &b, true, false, 1, true);
+    }
+}
+================================================================================
+END FILE: sunwue.rs
+================================================================================

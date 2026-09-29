@@ -1,5 +1,6 @@
 use mod_api_stable::*;
 
+pub mod kirito;
 mod native_effects;
 mod driver;
 mod extension;
@@ -9,6 +10,7 @@ mod logger;
 mod state;
 mod paragon;
 mod paragon_passive;
+mod sunwue;
 
 fn init(_host: &StableHost) -> StableMod {
     let mut reg = StableMod::new("my_mod");
