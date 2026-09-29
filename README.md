@@ -1,8 +1,8 @@
 # Anime Characters for TFM2
 
-Adds five anime-inspired characters to **Teamfight Manager 2**: **Saitama**, **Paragon**, **Naruto**, **Minato** and **Kirito**.
+Adds six anime-inspired characters to **Teamfight Manager 2**: **Saitama**, **Paragon**, **Naruto**, **Minato**, **Kirito** and **Sun Wue**.
 
-Each champion ships with its own sprite sheet, animation data, VFX, ability icons and sound effects. Three of them (Saitama, Paragon and Naruto) drive their abilities through custom native code, so this mod includes compiled Rust alongside the data files.
+Each champion ships with its own sprite sheet, animation data, VFX, ability icons and sound effects. Five of them (Saitama, Paragon, Naruto, Kirito and Sun Wue) drive their abilities through custom native code, so this mod includes compiled Rust alongside the data files.
 
 ---
 
@@ -36,7 +36,7 @@ Saitama's only ranged threat. Winds up with a full-screen caster effect before l
 |----|--------|---------|--------------|------------|------|
 | 1300 | 90 | 35 | 30 | 1000 | 0 |
 
-The tankiest of the five, built to soak damage and lock targets down.
+A front-line tank, built to soak damage and lock targets down.
 
 **Skill 1** — Short cooldown.
 Fully custom native ability.
@@ -80,7 +80,7 @@ An **area-of-effect** finisher (circle around the caster) that applies **Airborn
 |----|--------|---------|--------------|------------|------|
 | 1050 | 75 | 20 | 20 | 1250 | 16 |
 
-The fastest of the five and the only true ranged Assassin.
+The fastest of the six and the only true ranged Assassin.
 
 **Skill 1** — Long range.
 Rushes **behind** the target and strikes. Uses a buff-state switch, so its behaviour changes depending on Minato's current buffs.
@@ -121,14 +121,44 @@ Thrust at 0-1 Chain, or consumes 2 Chain to draw second sword and enter Dual-Wie
 
 ---
 
+# Sun Wue
+
+**Category:** Range · **Tags:** AD, Melee, CC
+
+| HP | Attack | Defence | Magic Resist | Move Speed | Crit | HP Regen |
+|----|--------|---------|--------------|------------|------|----------|
+| 1500 | 105 | 42 | 34 | 1100 | 10 | 4 |
+
+A swordsman who gets stronger as the fight goes on. Qi stacks stay after he dies. The fountain does not grant Qi.
+
+**Nine Revolutions Cultivation** (Passive)
+Gains 1 Qi per second while an enemy is nearby, and 10 Qi on a takedown. Each Qi grants 1% attack, up to 100 Qi.
+
+- Foundation at 12 Qi: +20% attack and +10% move speed.
+- Golden Core at 80 Qi: +40% attack.
+- Nascent Soul at 250 Qi: +80% attack, +30 defence, crowd-control immunity, and the first time he reaches it he ignores death for 3 seconds.
+
+**Sword Qi Slash** (Skill 1) — Long range.
+Sends an ice-blue crescent that deals 140% of attack damage to the first enemy it hits. Golden Core turns it into a piercing line that deals 160%. Nascent Soul places a circle on the aimed enemy, dealing 180% to that enemy and foes close to them.
+
+**Qi Barrier** (Skill 2)
+Crosses his arms and raises a golden-blue hexagonal barrier for 3 seconds. Gains 30 defence, 30 magic resistance, and immunity to crowd control.
+
+**Myriad Swords Return to One** (Ultimate)
+Jade swords gather overhead and slam down at his feet, dealing 300% of attack damage to nearby enemies and granting 30% attack for 3 seconds. Nascent Soul raises the slam to 600%.
+
+*Ships with realm foot auras plus the crescent, line, and circle effects. The barrier and the slam stay on his sprite sheet.*
+
+---
+
 # Installation
 
-1. Subscribe/enable the mod in the **Teamfight Manager 2** in-game mod manager, **or**
-2. Copy the contents of this repository into:
+1. Download the latest release and extract it into:
    ```
    C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\mods\my_mod\
    ```
-   The folder name must match the crate name for the DLL to load.
+   The folder name must match the crate name for the DLL to load. Replace the old files. Do not nest a second folder inside `my_mod`.
+2. Or subscribe/enable the mod in the **Teamfight Manager 2** in-game mod manager.
 
 # Building from source
 
@@ -146,7 +176,7 @@ This mod currently supports the **English locale only**. You can use it with oth
 
 # Known Issues
 
-- Balance numbers are still being tuned across all five champions. Feedback is very welcome.
+- Balance numbers are still being tuned across all six champions. Feedback is very welcome.
 - Kirito's ultimate was reduced from 25 to 16 frames to stay under the 2048 sheet limit — still looks smooth.
 
 # Credits
@@ -155,7 +185,7 @@ Thanks to the Teamfight Manager 2 modding community for the SDK setup, documenta
 
 # Legalese
 
-This is a free, fan-made mod. I am not affiliated with the creators, publishers or licensors of *One-Punch Man*, *Naruto*, *Sword Art Online* or *Teamfight Manager 2*'s developers. Character concepts, names, artwork and audio are the property of their respective owners. All sprites, icons and sound effects are used here for non-commercial, transformative fan purposes.
+This is a free, fan-made mod. I am not affiliated with the creators, publishers or licensors of *One-Punch Man*, *Naruto*, *Sword Art Online*, *Journey to the West* or *Teamfight Manager 2*'s developers. Character concepts, names, artwork and audio are the property of their respective owners. All sprites, icons and sound effects are used here for non-commercial, transformative fan purposes.
 
 If you are a rights holder and would like anything removed, please open an issue and it will be taken down promptly.
 
